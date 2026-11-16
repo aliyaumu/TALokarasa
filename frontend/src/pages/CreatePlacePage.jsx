@@ -33,13 +33,13 @@ const PRESET_IMAGES = [
 export default function CreatePlacePage({ onBack, onSuccess }) {
   const [formData, setFormData] = useState({
     name: '',
-    category_name: 'Kuliner Tradisional',
+    category_name: 'Bakso & Mie',
     address: '',
-    city: 'Yogyakarta',
+    city: 'Semarang',
     price_range: '$$',
-    avg_price: 30000,
+    avg_price: 25000,
     phone: '',
-    opening_hours: '09:00 - 21:00 WIB',
+    opening_hours: '10:00 - 21:00 WIB',
     description: '',
     is_recommended: false,
     image_url: PRESET_IMAGES[0].url,

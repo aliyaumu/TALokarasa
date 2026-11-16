@@ -2,12 +2,12 @@ import { supabase, isSupabaseConfigured } from "../config/supabaseClient.js";
 
 // In-Memory store fallback
 let mockCategories = [
-  { id: "c1010000-0000-0000-0000-000000000001", name: "Kuliner Tradisional", icon: "🍲" },
-  { id: "c1010000-0000-0000-0000-000000000002", name: "Cafe & Kopi", icon: "☕" },
-  { id: "c1010000-0000-0000-0000-000000000003", name: "Street Food & Angkringan", icon: "🍢" },
-  { id: "c1010000-0000-0000-0000-000000000004", name: "Seafood & Bakaran", icon: "🦐" },
-  { id: "c1010000-0000-0000-0000-000000000005", name: "Bakso & Mie", icon: "🍜" },
-  { id: "c1010000-0000-0000-0000-000000000006", name: "Aneka Sambal & Lalapan", icon: "🌶️" },
+  { id: "c1010000-0000-0000-0000-000000000001", name: "Bakso & Mie", icon: "🍜" },
+  { id: "c1010000-0000-0000-0000-000000000002", name: "Kuliner Tradisional", icon: "🍲" },
+  { id: "c1010000-0000-0000-0000-000000000003", name: "Aneka Sambal & Penyetan", icon: "🌶️" },
+  { id: "c1010000-0000-0000-0000-000000000004", name: "Asian & Donburi", icon: "🍱" },
+  { id: "c1010000-0000-0000-0000-000000000005", name: "Street Food & Camilan", icon: "🥟" },
+  { id: "c1010000-0000-0000-0000-000000000006", name: "Cafe & Nongkrong", icon: "☕" },
 ];
 
 export const CategoryModel = {

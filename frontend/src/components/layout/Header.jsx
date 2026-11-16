@@ -11,7 +11,7 @@ export default function Header({ isOffline }) {
           <div className="header-brand-text">
             <span className="brand-title">LOKARASA</span>
             <span className="brand-subtitle">
-              <MapPin size={11} className="inline-icon" /> Kuliner Nusantara
+              <MapPin size={11} className="inline-icon" /> Kuliner Semarang &amp; Sekitarnya
             </span>
           </div>
         </div>

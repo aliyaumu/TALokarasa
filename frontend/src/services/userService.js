@@ -29,10 +29,10 @@ export const getUserProfile = () => {
 
   return {
     name: 'Aliya Foodie',
-    role: 'Kuliner Explorer & Reviewer',
-    bio: 'Pencinta kuliner tradisional Nusantara, kopi klotok, dan pencari hidden gem kuliner daerah!',
+    role: 'Kuliner Explorer Semarang',
+    bio: 'Pencinta kuliner Semarang: Kedai Tinari, Bakmi Serangkai, dan pemburu hidden gem kuliner Tembalang & Banyumanik!',
     avatar: null,
-    favoriteCity: 'Yogyakarta',
+    favoriteCity: 'Semarang',
     userId: getUserIdentifier(),
     joinedDate: 'November 2026',
   }
