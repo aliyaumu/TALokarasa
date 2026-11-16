@@ -1,0 +1,170 @@
+{
+  "info": {
+    "_postman_id": "lokarasa-api-collection-2026",
+    "name": "Lokarasa API - Eksplorasi & Rekomendasi Tempat Makan",
+    "description": "Postman Collection untuk pengujian RESTful API Lokarasa (Modul 1 & Modul 2 Praktikum PPB)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Categories",
+      "item": [
+        {
+          "name": "GET All Categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5000/api/categories",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5000",
+              "path": ["api", "categories"]
+            }
+          }
+        },
+        {
+          "name": "POST Create Category",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Dessert & Es Krim\",\n  \"icon\": \"🍨\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/categories",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5000",
+              "path": ["api", "categories"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Restaurants",
+      "item": [
+        {
+          "name": "GET All Restaurants",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5000/api/restaurants",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5000",
+              "path": ["api", "restaurants"]
+            }
+          }
+        },
+        {
+          "name": "GET Recommended Restaurants",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5000/api/restaurants?is_recommended=true",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5000",
+              "path": ["api", "restaurants"],
+              "query": [
+                {
+                  "key": "is_recommended",
+                  "value": "true"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET Restaurant by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5000/api/restaurants/r2010000-0000-0000-0000-000000000001",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5000",
+              "path": ["api", "restaurants", "r2010000-0000-0000-0000-000000000001"]
+            }
+          }
+        },
+        {
+          "name": "POST Create Restaurant",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Mie Ayam Tumini Sari Rasa\",\n  \"category_name\": \"Bakso & Mie\",\n  \"address\": \"Jl. Imogiri Timur No.187, Giwangan, Umbulharjo\",\n  \"city\": \"Yogyakarta\",\n  \"price_range\": \"$\",\n  \"avg_price\": 18000,\n  \"rating\": 4.9,\n  \"description\": \"Mie ayam kuah kental manis gurih legendaris dengan ceker dan sawi melimpah.\",\n  \"image_url\": \"https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=800&q=80\",\n  \"phone\": \"0812-9988-7766\",\n  \"opening_hours\": \"10:00 - 17:00\",\n  \"is_recommended\": true,\n  \"signature_menu\": [\"Mie Ayam Ceker Jumbo\", \"Ekstra Kuah Kental\", \"Pangsit Goreng\"]\n}"
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/restaurants",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5000",
+              "path": ["api", "restaurants"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Reviews",
+      "item": [
+        {
+          "name": "GET Reviews by Restaurant",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5000/api/reviews/restaurant/r2010000-0000-0000-0000-000000000001",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5000",
+              "path": ["api", "reviews", "restaurant", "r2010000-0000-0000-0000-000000000001"]
+            }
+          }
+        },
+        {
+          "name": "POST Add Review",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"restaurant_id\": \"r2010000-0000-0000-0000-000000000001\",\n  \"user_name\": \"Aliya Nurhaliza\",\n  \"rating\": 5,\n  \"comment\": \"Tempatnya nyaman, rasa gudegnya pas banget tidak terlalu manis!\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/reviews",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5000",
+              "path": ["api", "reviews"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

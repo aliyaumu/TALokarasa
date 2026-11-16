@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="lokaGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e65c00" />
+      <stop offset="50%" stop-color="#f9d423" />
+      <stop offset="100%" stop-color="#ff4e50" />
+    </linearGradient>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2d1305" />
+      <stop offset="100%" stop-color="#150802" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000" flood-opacity="0.4"/>
+    </filter>
+  </defs>
+
+  <!-- Background Rounded Card -->
+  <rect width="512" height="512" rx="112" fill="url(#bgGrad)" />
+  <circle cx="256" cy="256" r="210" fill="none" stroke="url(#lokaGrad)" stroke-width="6" stroke-dasharray="16 10" opacity="0.6"/>
+
+  <!-- Glowing Food Cloche / Bowl & Steam -->
+  <g filter="url(#shadow)" transform="translate(0, -10)">
+    <!-- Aroma / Steam curves -->
+    <path d="M210 130 C200 110, 220 90, 210 70" fill="none" stroke="#f9d423" stroke-width="10" stroke-linecap="round" opacity="0.85"/>
+    <path d="M256 125 C246 100, 266 80, 256 55" fill="none" stroke="#f9d423" stroke-width="12" stroke-linecap="round" opacity="0.95"/>
+    <path d="M302 130 C292 110, 312 90, 302 70" fill="none" stroke="#f9d423" stroke-width="10" stroke-linecap="round" opacity="0.85"/>
+
+    <!-- Cloche dome / Food Bowl -->
+    <path d="M128 270 C128 175, 384 175, 384 270 Z" fill="url(#lokaGrad)"/>
+    <circle cx="256" cy="165" r="16" fill="#f9d423"/>
+
+    <!-- Cloche Plate / Tray -->
+    <rect x="100" y="275" width="312" height="24" rx="12" fill="#ffffff" opacity="0.95"/>
+    <rect x="120" y="305" width="272" height="12" rx="6" fill="#e65c00" opacity="0.8"/>
+
+    <!-- Fork & Spoon Cross -->
+    <circle cx="256" cy="380" r="48" fill="#e65c00" fill-opacity="0.25"/>
+    <path d="M236 350 L256 410 M276 350 L256 410" stroke="#f9d423" stroke-width="6" stroke-linecap="round"/>
+  </g>
+
+  <!-- Typography Brand text -->
+  <text x="256" y="450" font-family="'Plus Jakarta Sans', Arial, sans-serif" font-size="44" font-weight="800" fill="#ffffff" text-anchor="middle" letter-spacing="4">
+    LOKARASA
+  </text>
+</svg>

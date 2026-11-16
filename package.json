@@ -1,0 +1,27 @@
+{
+  "name": "lokarasa-root",
+  "version": "1.0.0",
+  "description": "Tugas Akhir Praktikum PPB - Lokarasa: Aplikasi Eksplorasi dan Rekomendasi Tempat Makan Berbasis Mobile PWA",
+  "private": true,
+  "scripts": {
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "start:backend": "cd backend && npm start",
+    "build:frontend": "cd frontend && npm run build",
+    "preview:frontend": "cd frontend && npm run preview -- --host",
+    "install:backend": "cd backend && npm install",
+    "install:frontend": "cd frontend && npm install",
+    "install:all": "npm run install:backend && npm run install:frontend"
+  },
+  "keywords": [
+    "lokarasa",
+    "pwa",
+    "react",
+    "vite",
+    "express",
+    "supabase",
+    "praktikum-ppb"
+  ],
+  "author": "Aliya",
+  "license": "ISC"
+}
