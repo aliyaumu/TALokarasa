@@ -48,6 +48,11 @@ CREATE TABLE reviews (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
 
+-- Matikan Row Level Security (RLS) agar backend API bebas melakukan operasi CRUD
+ALTER TABLE categories DISABLE ROW LEVEL SECURITY;
+ALTER TABLE restaurants DISABLE ROW LEVEL SECURITY;
+ALTER TABLE reviews DISABLE ROW LEVEL SECURITY;
+
 -- 5. Masukkan Data Awal (Seed Data Kategori)
 INSERT INTO categories (id, name, icon) VALUES
   ('c1010000-0000-0000-0000-000000000001', 'Kuliner Tradisional', '🍲'),
