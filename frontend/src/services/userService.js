@@ -41,6 +41,8 @@ export const getUserProfile = () => {
   }
 }
 
+export const getCurrentUser = getUserProfile
+
 export const saveUserProfile = (profile) => {
   try {
     const data = {
@@ -115,6 +117,7 @@ export const logoutUser = () => {
 export default {
   getUserIdentifier,
   getUserProfile,
+  getCurrentUser,
   saveUserProfile,
   loginUser,
   registerUser,

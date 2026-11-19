@@ -32,7 +32,13 @@ export default function App() {
   const [exploreCategory, setExploreCategory] = useState('Semua')
 
   // Auth & User State
-  const [currentUser, setCurrentUser] = useState(() => userService.getCurrentUser())
+  const [currentUser, setCurrentUser] = useState(() => {
+    try {
+      return userService.getUserProfile ? userService.getUserProfile() : null
+    } catch {
+      return null
+    }
+  })
   const [isAuthOpen, setIsAuthOpen] = useState(false)
 
   // Deletion Modal
@@ -40,13 +46,19 @@ export default function App() {
   const [deleting, setDeleting] = useState(false)
 
   // Data fetching from Supabase / Local fallback
-  const { restaurants, loading, error, isLocal, refetch } = useRestaurants()
-  const { favorites, toggleFavorite, isFavorited, refetch: refetchFavorites } = useFavorites()
+  const { restaurants = [], loading, error, isLocal, refetch } = useRestaurants()
+  const { favorites = [], toggleFavorite, isFavorited, refetch: refetchFavorites } = useFavorites()
 
   // Sync user profile state
   useEffect(() => {
     const syncUser = () => {
-      setCurrentUser(userService.getCurrentUser())
+      try {
+        if (userService.getUserProfile) {
+          setCurrentUser(userService.getUserProfile())
+        }
+      } catch (err) {
+        console.error('Failed to sync user:', err)
+      }
     }
     window.addEventListener('storage', syncUser)
     return () => window.removeEventListener('storage', syncUser)

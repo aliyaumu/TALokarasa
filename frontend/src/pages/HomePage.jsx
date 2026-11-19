@@ -14,8 +14,8 @@ import { formatRupiah, truncate } from '../utils/helpers'
 
 export default function HomePage({
   userProfile,
-  restaurants,
-  favorites,
+  restaurants = [],
+  favorites = [],
   onSelectRestaurant,
   onToggleFavorite,
   onNavigateExplore,
@@ -23,25 +23,27 @@ export default function HomePage({
 }) {
   const [searchQuery, setSearchQuery] = useState('')
 
+  const safeRestaurants = Array.isArray(restaurants) ? restaurants : []
+  const safeFavorites = Array.isArray(favorites) ? favorites : []
+
   const favMap = useMemo(() => {
     const map = new Set()
-    favorites.forEach((fav) => map.add(String(fav.id || fav.name)))
+    safeFavorites.forEach((fav) => map.add(String(fav?.id || fav?.name)))
     return map
-  }, [favorites])
+  }, [safeFavorites])
 
   // Most Popular items (rating >= 4.8)
   const popularRestaurants = useMemo(() => {
-    return restaurants
-      .filter((r) => Number(r.rating) >= 4.8)
+    return safeRestaurants
+      .filter((r) => Number(r?.rating || 0) >= 4.7)
       .slice(0, 4)
-  }, [restaurants])
+  }, [safeRestaurants])
 
   // Recommended for you (curated picks)
   const recommendedRestaurants = useMemo(() => {
-    return restaurants
-      .filter((r) => r.is_recommended)
-      .slice(0, 4)
-  }, [restaurants])
+    const recs = safeRestaurants.filter((r) => r?.is_recommended)
+    return recs.length > 0 ? recs.slice(0, 4) : safeRestaurants.slice(0, 4)
+  }, [safeRestaurants])
 
   const categories = [
     { name: 'Bakso & Mie', icon: '🍜', tag: 'Bakso & Mie' },
