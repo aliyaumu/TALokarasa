@@ -4,7 +4,7 @@ import { apiClient } from '../config/api'
 let localReviews = [
   {
     id: "rev-1",
-    restaurant_id: "r2010000-0000-0000-0000-000000000001",
+    restaurant_id: "d2010000-0000-0000-0000-000000000001",
     user_name: "Aliya Putri",
     rating: 5,
     comment: "Creamy mala-nya juara banget! Bumbunya medok dan pedas chili oil-nya nagih, porsinya pas untuk makan siang.",
@@ -12,7 +12,7 @@ let localReviews = [
   },
   {
     id: "rev-2",
-    restaurant_id: "r2010000-0000-0000-0000-000000000001",
+    restaurant_id: "d2010000-0000-0000-0000-000000000001",
     user_name: "Bagus Wicaksono",
     rating: 5,
     comment: "Dimsum kuah creamy sama mie chili oil Singapore wajib dipesan. Tempatnya estetik dan pelayanannya cepat.",
@@ -20,7 +20,7 @@ let localReviews = [
   },
   {
     id: "rev-3",
-    restaurant_id: "r2010000-0000-0000-0000-000000000002",
+    restaurant_id: "d2010000-0000-0000-0000-000000000002",
     user_name: "Dinda Larasati",
     rating: 5,
     comment: "Misoa kuah komplit bener-bener comforting! Kuah kaldunya gurih segar dan pangsit cabainya mantap.",
@@ -28,7 +28,7 @@ let localReviews = [
   },
   {
     id: "rev-4",
-    restaurant_id: "r2010000-0000-0000-0000-000000000003",
+    restaurant_id: "d2010000-0000-0000-0000-000000000003",
     user_name: "Rian Hidayat",
     rating: 4,
     comment: "Warung Budhe selalu jadi penyelamat akhir bulan anak Tembalang. Masakan mangut ikan sama opor ayamnya mantap.",
@@ -36,7 +36,7 @@ let localReviews = [
   },
   {
     id: "rev-5",
-    restaurant_id: "r2010000-0000-0000-0000-000000000004",
+    restaurant_id: "d2010000-0000-0000-0000-000000000004",
     user_name: "Siti Nurhaliza",
     rating: 5,
     comment: "Kremesannya melimpah ruah dan super renyah! Sambal korek bawangnya nampol abis, ayamnya empuk gurih.",
@@ -44,7 +44,7 @@ let localReviews = [
   },
   {
     id: "rev-6",
-    restaurant_id: "r2010000-0000-0000-0000-000000000005",
+    restaurant_id: "d2010000-0000-0000-0000-000000000005",
     user_name: "Fajar Ramadhan",
     rating: 5,
     comment: "Bakmi Serangkai salah satu mie yamin terenak di Semarang. Tekstur mienya kenyal dan charsiu ayamnya gurih manis.",
@@ -52,7 +52,7 @@ let localReviews = [
   },
   {
     id: "rev-7",
-    restaurant_id: "r2010000-0000-0000-0000-000000000006",
+    restaurant_id: "d2010000-0000-0000-0000-000000000006",
     user_name: "Kevin Sanjaya",
     rating: 5,
     comment: "Gyu Nikudon dagingnya lembut bumbunya meresap sampai ke nasi. Telur onsennya meleleh sempurna!",
@@ -60,7 +60,7 @@ let localReviews = [
   },
   {
     id: "rev-8",
-    restaurant_id: "r2010000-0000-0000-0000-000000000007",
+    restaurant_id: "d2010000-0000-0000-0000-000000000007",
     user_name: "Ibu Ratna",
     rating: 5,
     comment: "Lumpia Gang Lombok memang nomor satu di Semarang, rebungnya manis tidak pesing sama sekali.",

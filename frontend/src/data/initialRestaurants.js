@@ -9,7 +9,7 @@ export const INITIAL_CATEGORIES = [
 
 export const INITIAL_RESTAURANTS = [
   {
-    id: "r2010000-0000-0000-0000-000000000001",
+    id: "d2010000-0000-0000-0000-000000000001",
     name: "Kedai Tinari",
     category_id: "c1",
     category_name: "Bakso & Mie",
@@ -28,7 +28,7 @@ export const INITIAL_RESTAURANTS = [
     created_at: new Date().toISOString()
   },
   {
-    id: "r2010000-0000-0000-0000-000000000002",
+    id: "d2010000-0000-0000-0000-000000000002",
     name: "Kedai Melimbah",
     category_id: "c2",
     category_name: "Kuliner Tradisional",
@@ -47,7 +47,7 @@ export const INITIAL_RESTAURANTS = [
     created_at: new Date().toISOString()
   },
   {
-    id: "r2010000-0000-0000-0000-000000000003",
+    id: "d2010000-0000-0000-0000-000000000003",
     name: "Warung Makan Budhe",
     category_id: "c2",
     category_name: "Kuliner Tradisional",
@@ -66,7 +66,7 @@ export const INITIAL_RESTAURANTS = [
     created_at: new Date().toISOString()
   },
   {
-    id: "r2010000-0000-0000-0000-000000000004",
+    id: "d2010000-0000-0000-0000-000000000004",
     name: "Sami Seneng",
     category_id: "c3",
     category_name: "Aneka Sambal & Penyetan",
@@ -85,7 +85,7 @@ export const INITIAL_RESTAURANTS = [
     created_at: new Date().toISOString()
   },
   {
-    id: "r2010000-0000-0000-0000-000000000005",
+    id: "d2010000-0000-0000-0000-000000000005",
     name: "Bak Mie Serangkai",
     category_id: "c1",
     category_name: "Bakso & Mie",
@@ -104,7 +104,7 @@ export const INITIAL_RESTAURANTS = [
     created_at: new Date().toISOString()
   },
   {
-    id: "r2010000-0000-0000-0000-000000000006",
+    id: "d2010000-0000-0000-0000-000000000006",
     name: "Niki Nikudon",
     category_id: "c4",
     category_name: "Asian & Donburi",
@@ -123,7 +123,7 @@ export const INITIAL_RESTAURANTS = [
     created_at: new Date().toISOString()
   },
   {
-    id: "r2010000-0000-0000-0000-000000000007",
+    id: "d2010000-0000-0000-0000-000000000007",
     name: "Lumpia Gang Lombok No. 1",
     category_id: "c5",
     category_name: "Street Food & Camilan",
@@ -142,7 +142,7 @@ export const INITIAL_RESTAURANTS = [
     created_at: new Date().toISOString()
   },
   {
-    id: "r2010000-0000-0000-0000-000000000008",
+    id: "d2010000-0000-0000-0000-000000000008",
     name: "Tahu Gimbal Pak H. Edy",
     category_id: "c2",
     category_name: "Kuliner Tradisional",

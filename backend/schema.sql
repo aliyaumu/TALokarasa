@@ -32,7 +32,7 @@ CREATE TABLE restaurants (
   description TEXT,
   image_url TEXT,
   phone TEXT,
-  opening_hours TEXT DEFAULT '10:00 - 21:00',
+  opening_hours TEXT DEFAULT '10:00 - 21:00 WIB',
   is_recommended BOOLEAN DEFAULT false,
   signature_menu JSONB DEFAULT '[]'::jsonb,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()),
@@ -49,7 +49,7 @@ CREATE TABLE reviews (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
 
--- 5. Matikan Row Level Security (RLS) agar backend API leluasa melakukan operasi CRUD
+-- 5. Matikan Row Level Security (RLS) agar API backend leluasa melakukan operasi CRUD
 ALTER TABLE categories DISABLE ROW LEVEL SECURITY;
 ALTER TABLE restaurants DISABLE ROW LEVEL SECURITY;
 ALTER TABLE reviews DISABLE ROW LEVEL SECURITY;
@@ -66,7 +66,7 @@ INSERT INTO categories (id, name, icon) VALUES
 -- 7. Masukkan Data Restoran Rekomendasi Semarang
 INSERT INTO restaurants (id, name, category_id, category_name, address, city, price_range, avg_price, rating, review_count, description, image_url, phone, opening_hours, is_recommended, signature_menu) VALUES
   (
-    'r2010000-0000-0000-0000-000000000001',
+    'd2010000-0000-0000-0000-000000000001',
     'Kedai Tinari',
     'c1010000-0000-0000-0000-000000000001',
     'Bakso & Mie',
@@ -84,7 +84,7 @@ INSERT INTO restaurants (id, name, category_id, category_name, address, city, pr
     '["Creamy Ori Ayam Panggang", "Creamy Mala Daging Sapi", "Mie Chili Oil Singapore", "Dimsum Kuah Creamy"]'::jsonb
   ),
   (
-    'r2010000-0000-0000-0000-000000000002',
+    'd2010000-0000-0000-0000-000000000002',
     'Kedai Melimbah',
     'c1010000-0000-0000-0000-000000000002',
     'Kuliner Tradisional',
@@ -102,7 +102,7 @@ INSERT INTO restaurants (id, name, category_id, category_name, address, city, pr
     '["Misoa Kuah Komplit Daging", "Pangsit Chili Oil Melimpah", "Bakmi Kuah Kaldu Ayam", "Es Sarsaparilla Badak"]'::jsonb
   ),
   (
-    'r2010000-0000-0000-0000-000000000003',
+    'd2010000-0000-0000-0000-000000000003',
     'Warung Makan Budhe',
     'c1010000-0000-0000-0000-000000000002',
     'Kuliner Tradisional',
@@ -112,7 +112,7 @@ INSERT INTO restaurants (id, name, category_id, category_name, address, city, pr
     16000,
     4.7,
     189,
-    'Warung makan prasmanan masakan rumahan Jawa yang selalu ramai pembeli. Pilihan sayur lodeh, mangut ikan, opor ayam kampung, serta aneka gorengan hangat dengan harga yang super ramah di kantong.',
+    'Warung makan prasmanan masakan rumahan Jawa yang selalu ramai pembeli. Pilihan sayur lodeh, mangut ikan manyung, opor ayam kampung, serta aneka gorengan hangat dengan harga super ramah di kantong.',
     'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80',
     '0813-9087-6543',
     '07:00 - 20:00 WIB',
@@ -120,7 +120,7 @@ INSERT INTO restaurants (id, name, category_id, category_name, address, city, pr
     '["Nasi Rames Mangut Ikan Manyung", "Ayam Goreng Bumbu Lengkuas", "Sayur Asem & Tempe Mendoan", "Sambal Terasi Ulek"]'::jsonb
   ),
   (
-    'r2010000-0000-0000-0000-000000000004',
+    'd2010000-0000-0000-0000-000000000004',
     'Sami Seneng',
     'c1010000-0000-0000-0000-000000000003',
     'Aneka Sambal & Penyetan',
@@ -138,7 +138,7 @@ INSERT INTO restaurants (id, name, category_id, category_name, address, city, pr
     '["Ayam Goreng Kremes Crispy", "Bebek Bakar Sambal Korek", "Lele Goreng Kremes", "Kulit Ayam Goreng Renyah"]'::jsonb
   ),
   (
-    'r2010000-0000-0000-0000-000000000005',
+    'd2010000-0000-0000-0000-000000000005',
     'Bak Mie Serangkai',
     'c1010000-0000-0000-0000-000000000001',
     'Bakso & Mie',
@@ -148,7 +148,7 @@ INSERT INTO restaurants (id, name, category_id, category_name, address, city, pr
     25000,
     4.8,
     275,
-    'Kedai bakmi bergaya artisanal di pusat Kota Semarang. Menggunakan mie buatan tangan (*handmade*) dengan bumbu minyak gurih aromatik dan pilihan topping ayam charsiu serta pangsit goreng renyah.',
+    'Kedai bakmi bergaya artisanal di pusat Kota Semarang. Menggunakan mie buatan tangan (handmade) dengan bumbu minyak gurih aromatik dan pilihan topping ayam charsiu serta pangsit goreng renyah.',
     'https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&w=800&q=80',
     '0811-2789-0123',
     '12:00 - 21:30 WIB',
@@ -156,7 +156,7 @@ INSERT INTO restaurants (id, name, category_id, category_name, address, city, pr
     '["Mie Yamin Charsiu Ayam", "Mie Chili Oil Serangkai", "Mie Ayam Komplit Pangsit Kuah", "Pangsit Goreng Emas"]'::jsonb
   ),
   (
-    'r2010000-0000-0000-0000-000000000006',
+    'd2010000-0000-0000-0000-000000000006',
     'Niki Nikudon',
     'c1010000-0000-0000-0000-000000000004',
     'Asian & Donburi',
@@ -174,7 +174,7 @@ INSERT INTO restaurants (id, name, category_id, category_name, address, city, pr
     '["Signature Gyu Nikudon", "Tori Karaage Curry Don", "Spicy Garlic Beef Bowl", "Tamagoyaki Roll"]'::jsonb
   ),
   (
-    'r2010000-0000-0000-0000-000000000007',
+    'd2010000-0000-0000-0000-000000000007',
     'Lumpia Gang Lombok No. 1',
     'c1010000-0000-0000-0000-000000000005',
     'Street Food & Camilan',
@@ -192,7 +192,7 @@ INSERT INTO restaurants (id, name, category_id, category_name, address, city, pr
     '["Lumpia Goreng Spesial Rebung Udang", "Lumpia Basah Tradisional", "Saus Bawang Kental & Daun Bawang Segar"]'::jsonb
   ),
   (
-    'r2010000-0000-0000-0000-000000000008',
+    'd2010000-0000-0000-0000-000000000008',
     'Tahu Gimbal Pak H. Edy',
     'c1010000-0000-0000-0000-000000000002',
     'Kuliner Tradisional',
@@ -210,13 +210,13 @@ INSERT INTO restaurants (id, name, category_id, category_name, address, city, pr
     '["Tahu Gimbal Komplit Bakwan Udang Jumbo", "Telur Ceplok Petis Pedas", "Kerupuk Udang Renyah"]'::jsonb
   );
 
--- 8. Masukkan Data Ulasan Awal Semarang
+-- 8. Masukkan Data Ulasan Komunitas Semarang
 INSERT INTO reviews (restaurant_id, user_name, rating, comment) VALUES
-  ('r2010000-0000-0000-0000-000000000001', 'Aliya Putri', 5, 'Creamy mala-nya juara banget! Bumbunya medok dan pedas chili oil-nya nagih, porsinya pas untuk makan siang.'),
-  ('r2010000-0000-0000-0000-000000000001', 'Bagus Wicaksono', 5, 'Dimsum kuah creamy sama mie chili oil Singapore wajib dipesan. Tempatnya estetik dan pelayanannya cepat.'),
-  ('r2010000-0000-0000-0000-000000000002', 'Dinda Larasati', 5, 'Misoa kuah komplit bener-bener comforting! Kuah kaldunya gurih segar dan pangsit cabainya mantap.'),
-  ('r2010000-0000-0000-0000-000000000003', 'Rian Hidayat', 4, 'Warung Budhe selalu jadi penyelamat akhir bulan anak Tembalang. Masakan mangut ikan sama opor ayamnya mantap.'),
-  ('r2010000-0000-0000-0000-000000000004', 'Siti Nurhaliza', 5, 'Kremesannya melimpah ruah dan super renyah! Sambal bawangnya nampol abis, ayamnya empuk gurih.'),
-  ('r2010000-0000-0000-0000-000000000005', 'Fajar Ramadhan', 5, 'Bakmi Serangkai salah satu mie yamin terenak di Semarang. Tekstur mienya kenyal dan charsiu ayamnya gurih manis.'),
-  ('r2010000-0000-0000-0000-000000000006', 'Kevin Sanjaya', 5, 'Gyu Nikudon dagingnya lembut bumbunya meresap sampai ke nasi. Telur onsennya meleleh sempurna!'),
-  ('r2010000-0000-0000-0000-000000000007', 'Ibu Ratna', 5, 'Lumpia Gang Lombok memang nomor satu di Semarang, rebungnya manis tidak pesing sama sekali.');
+  ('d2010000-0000-0000-0000-000000000001', 'Aliya Putri', 5, 'Creamy mala-nya juara banget! Bumbunya medok dan pedas chili oil-nya nagih, porsinya pas untuk makan siang.'),
+  ('d2010000-0000-0000-0000-000000000001', 'Bagus Wicaksono', 5, 'Dimsum kuah creamy sama mie chili oil Singapore wajib dipesan. Tempatnya estetik dan pelayanannya cepat.'),
+  ('d2010000-0000-0000-0000-000000000002', 'Dinda Larasati', 5, 'Misoa kuah komplit bener-bener comforting! Kuah kaldunya gurih segar dan pangsit cabainya mantap.'),
+  ('d2010000-0000-0000-0000-000000000003', 'Rian Hidayat', 4, 'Warung Budhe selalu jadi penyelamat akhir bulan anak Tembalang. Masakan mangut ikan sama opor ayamnya mantap.'),
+  ('d2010000-0000-0000-0000-000000000004', 'Siti Nurhaliza', 5, 'Kremesannya melimpah ruah dan super renyah! Sambal korek bawangnya nampol abis, ayamnya empuk gurih.'),
+  ('d2010000-0000-0000-0000-000000000005', 'Fajar Ramadhan', 5, 'Bakmi Serangkai salah satu mie yamin terenak di Semarang. Tekstur mienya kenyal dan charsiu ayamnya gurih manis.'),
+  ('d2010000-0000-0000-0000-000000000006', 'Kevin Sanjaya', 5, 'Gyu Nikudon dagingnya lembut bumbunya meresap sampai ke nasi. Telur onsennya meleleh sempurna!'),
+  ('d2010000-0000-0000-0000-000000000007', 'Ibu Ratna', 5, 'Lumpia Gang Lombok memang nomor satu di Semarang, rebungnya manis tidak pesing sama sekali.');

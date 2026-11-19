@@ -1,24 +1,33 @@
 :root {
-  --primary: #c85a17;
-  --primary-hover: #aa470b;
-  --primary-light: #fff5ee;
+  --primary: #f97316;
+  --primary-hover: #ea580c;
+  --primary-light: rgba(249, 115, 22, 0.14);
   --accent: #f59e0b;
-  --ink: #1f1610;
-  --ink-secondary: #64748b;
-  --paper: #fbf9f6;
-  --card-bg: #ffffff;
-  --line: #ecdcd0;
-  --danger: #e63946;
+  --bg-dark: #121216;
+  --card-dark: #1b1b22;
+  --card-subtle: #252530;
+  --line-dark: #2c2c38;
+  --text-white: #f8fafc;
+  --text-muted: #94a3b8;
+  --text-dim: #64748b;
+  --ink: #f8fafc;
+  --ink-secondary: #94a3b8;
+  --paper: #121216;
+  --card-bg: #1b1b22;
+  --line: #2a2a36;
+  --danger: #ef4444;
   --success: #10b981;
-  --radius: 12px;
-  --shadow-sm: 0 2px 8px rgba(35, 24, 21, 0.05);
-  --shadow-md: 0 6px 18px rgba(35, 24, 21, 0.08);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --radius-full: 9999px;
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.45);
   --font-main: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   --font-serif: 'Playfair Display', Georgia, serif;
-  color-scheme: light;
+  color-scheme: dark;
   font: 16px/1.5 var(--font-main);
-  color: var(--ink);
-  background-color: var(--paper);
+  color: var(--text-white);
+  background-color: var(--bg-dark);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -31,14 +40,16 @@
 
 body {
   margin: 0;
-  background-color: var(--paper);
-  color: var(--ink);
+  background-color: var(--bg-dark);
+  color: var(--text-white);
   overflow-x: hidden;
   -webkit-tap-highlight-color: transparent;
+  min-height: 100vh;
 }
 
 button, input, select, textarea {
   font-family: inherit;
+  color: inherit;
 }
 
 a {
@@ -46,17 +57,21 @@ a {
   text-decoration: none;
 }
 
-/* Scrollbar aesthetic */
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: #121216;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #d4c5bb;
+  background: #2e2e3c;
   border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #444458;
 }

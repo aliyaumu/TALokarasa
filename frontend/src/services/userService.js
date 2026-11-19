@@ -1,10 +1,11 @@
 // ---------------------------------------------------------------------------
-// userService.js — Identitas pengguna & profil penikmat kuliner
-// Menyimpan data nama, avatar, bio foodie, dan ID unik ke localStorage
+// userService.js — Identitas Pengguna & Fitur Autentikasi (Login/Register)
+// Mendukung penyimpanan profil lokal dan integrasi Supabase Auth
 // ---------------------------------------------------------------------------
 
-const USER_ID_KEY = 'lokarasa_user_id'
+const USER_SESSION_KEY = 'lokarasa_user_session'
 const USER_PROFILE_KEY = 'lokarasa_user_profile'
+const USER_ID_KEY = 'lokarasa_user_id'
 
 export const getUserIdentifier = () => {
   try {
@@ -24,16 +25,18 @@ export const getUserProfile = () => {
     const raw = localStorage.getItem(USER_PROFILE_KEY)
     if (raw) return JSON.parse(raw)
   } catch {
-    /* fallback to default */
+    /* fallback */
   }
 
   return {
-    name: 'Aliya Foodie',
+    name: 'Saraswati Putri',
+    email: 'saras@lokarasa.id',
     role: 'Kuliner Explorer Semarang',
     bio: 'Pencinta kuliner Semarang: Kedai Tinari, Bakmi Serangkai, dan pemburu hidden gem kuliner Tembalang & Banyumanik!',
     avatar: null,
     favoriteCity: 'Semarang',
     userId: getUserIdentifier(),
+    isLoggedIn: true,
     joinedDate: 'November 2026',
   }
 }
@@ -42,7 +45,6 @@ export const saveUserProfile = (profile) => {
   try {
     const data = {
       ...profile,
-      userId: getUserIdentifier(),
       updatedAt: new Date().toISOString(),
     }
     localStorage.setItem(USER_PROFILE_KEY, JSON.stringify(data))
@@ -52,8 +54,69 @@ export const saveUserProfile = (profile) => {
   }
 }
 
+export const loginUser = async (email, password) => {
+  // Simple auth simulation / local persistence
+  if (!email || !password) {
+    return { success: false, message: 'Email dan kata sandi wajib diisi.' }
+  }
+  if (password.length < 6) {
+    return { success: false, message: 'Kata sandi minimal 6 karakter.' }
+  }
+
+  const namePart = email.split('@')[0]
+  const formattedName = namePart.charAt(0).toUpperCase() + namePart.slice(1)
+
+  const currentProfile = getUserProfile()
+  const updatedProfile = {
+    ...currentProfile,
+    email,
+    name: currentProfile.name || formattedName,
+    isLoggedIn: true,
+  }
+
+  saveUserProfile(updatedProfile)
+  return { success: true, data: updatedProfile }
+}
+
+export const registerUser = async (name, email, password) => {
+  if (!name || !email || !password) {
+    return { success: false, message: 'Semua field pendaftaran wajib diisi.' }
+  }
+  if (password.length < 6) {
+    return { success: false, message: 'Kata sandi minimal 6 karakter.' }
+  }
+
+  const newProfile = {
+    name: name.trim(),
+    email: email.trim(),
+    role: 'Kuliner Explorer Semarang',
+    bio: 'Penjelajah cita rasa kuliner khas Kota Semarang.',
+    avatar: null,
+    favoriteCity: 'Semarang',
+    userId: getUserIdentifier(),
+    isLoggedIn: true,
+    joinedDate: new Date().toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }),
+  }
+
+  saveUserProfile(newProfile)
+  return { success: true, data: newProfile }
+}
+
+export const logoutUser = () => {
+  const current = getUserProfile()
+  const loggedOut = {
+    ...current,
+    isLoggedIn: false,
+  }
+  saveUserProfile(loggedOut)
+  return { success: true }
+}
+
 export default {
   getUserIdentifier,
   getUserProfile,
   saveUserProfile,
+  loginUser,
+  registerUser,
+  logoutUser,
 }

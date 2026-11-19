@@ -1,12 +1,12 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Header from './components/layout/Header'
 import BottomNav from './components/layout/BottomNav'
-import SplashScreen from './components/common/SplashScreen'
 import PWABadge from './components/PWABadge'
 import ConfirmModal from './components/modals/ConfirmModal'
+import AuthModal from './components/auth/AuthModal'
 
+import HomePage from './pages/HomePage'
 import ExplorePage from './pages/ExplorePage'
-import RecommendationPage from './pages/RecommendationPage'
 import FavoritesPage from './pages/FavoritesPage'
 import CreatePlacePage from './pages/CreatePlacePage'
 import EditPlacePage from './pages/EditPlacePage'
@@ -16,22 +16,41 @@ import RestaurantDetail from './components/restaurant/RestaurantDetail'
 import { useRestaurants } from './hooks/useRestaurants'
 import { useFavorites } from './hooks/useFavorites'
 import restaurantService from './services/restaurantService'
+import userService from './services/userService'
 import './App.css'
 
 export default function App() {
-  const [showSplash, setShowSplash] = useState(true)
-  const [activeTab, setActiveTab] = useState('explore') // 'explore' | 'recommendations' | 'add' | 'favorites' | 'profile'
+  // Navigation State
+  // Initial tab is 'home' directly (splash screen removed as requested)
+  const [activeTab, setActiveTab] = useState('home') // 'home' | 'explore' | 'favorites' | 'profile' | 'add'
   const [mode, setMode] = useState('list') // 'list' | 'detail' | 'edit'
   const [selectedRestaurant, setSelectedRestaurant] = useState(null)
   const [editingRestaurant, setEditingRestaurant] = useState(null)
+
+  // Search query & category passed from Home to Explore
+  const [exploreQuery, setExploreQuery] = useState('')
+  const [exploreCategory, setExploreCategory] = useState('Semua')
+
+  // Auth & User State
+  const [currentUser, setCurrentUser] = useState(() => userService.getCurrentUser())
+  const [isAuthOpen, setIsAuthOpen] = useState(false)
 
   // Deletion Modal
   const [deleteTarget, setDeleteTarget] = useState(null)
   const [deleting, setDeleting] = useState(false)
 
-  // Data fetching
+  // Data fetching from Supabase / Local fallback
   const { restaurants, loading, error, isLocal, refetch } = useRestaurants()
   const { favorites, toggleFavorite, isFavorited, refetch: refetchFavorites } = useFavorites()
+
+  // Sync user profile state
+  useEffect(() => {
+    const syncUser = () => {
+      setCurrentUser(userService.getCurrentUser())
+    }
+    window.addEventListener('storage', syncUser)
+    return () => window.removeEventListener('storage', syncUser)
+  }, [])
 
   // Navigation Handlers
   const handleSelectRestaurant = (resto) => {
@@ -60,6 +79,22 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  const handleNavigateExplore = (searchQuery = '', category = 'Semua') => {
+    setExploreQuery(searchQuery)
+    setExploreCategory(category)
+    handleTabChange('explore')
+  }
+
+  // Auth Handlers
+  const handleAuthSuccess = (userData) => {
+    setCurrentUser(userData)
+    setIsAuthOpen(false)
+  }
+
+  const handleProfileUpdate = (updatedProfile) => {
+    setCurrentUser(updatedProfile)
+  }
+
   // Confirm Delete
   const handleDeleteConfirm = async () => {
     if (!deleteTarget) return
@@ -79,13 +114,16 @@ export default function App() {
 
   return (
     <div className="app-shell">
-      {/* Splash Screen */}
-      {showSplash && (
-        <SplashScreen onFinish={() => setShowSplash(false)} />
-      )}
-
-      {/* Top Header App Bar */}
-      <Header isOffline={isLocal} />
+      {/* Top Header Bar (Responsive for Mobile and Desktop Web) */}
+      <Header
+        activeTab={mode === 'list' ? activeTab : ''}
+        onTabChange={handleTabChange}
+        favCount={favorites.length}
+        userProfile={currentUser}
+        onOpenAuth={() => setIsAuthOpen(true)}
+        isOffline={isLocal}
+        onNavigateAdd={() => handleTabChange('add')}
+      />
 
       {/* Main Content Area */}
       <main className="app-main">
@@ -119,7 +157,23 @@ export default function App() {
         {/* TOP-LEVEL TABS (Mode === 'list') */}
         {mode === 'list' && (
           <>
-            {/* TAB 1: Eksplorasi (Halaman Utama 1 - List & Detail) */}
+            {/* TAB 1: Beranda / Home (Image 1 & Image 4 Screen 2) */}
+            {activeTab === 'home' && (
+              <HomePage
+                userProfile={currentUser}
+                restaurants={restaurants}
+                favorites={favorites}
+                onSelectRestaurant={handleSelectRestaurant}
+                onToggleFavorite={(r) => {
+                  toggleFavorite(r)
+                  refetchFavorites()
+                }}
+                onNavigateExplore={handleNavigateExplore}
+                onOpenAuth={() => setIsAuthOpen(true)}
+              />
+            )}
+
+            {/* TAB 2: Explore (Image 4 Screen 3) */}
             {activeTab === 'explore' && (
               <ExplorePage
                 restaurants={restaurants}
@@ -132,36 +186,13 @@ export default function App() {
                   toggleFavorite(r)
                   refetchFavorites()
                 }}
-                onNavigateAdd={() => setActiveTab('add')}
+                initialQuery={exploreQuery}
+                initialCategory={exploreCategory}
+                onNavigateAdd={() => handleTabChange('add')}
               />
             )}
 
-            {/* TAB 2: Rekomendasi (Halaman Utama 2 - List & Detail) */}
-            {activeTab === 'recommendations' && (
-              <RecommendationPage
-                restaurants={restaurants}
-                onSelectRestaurant={handleSelectRestaurant}
-                favorites={favorites}
-                onToggleFavorite={(r) => {
-                  toggleFavorite(r)
-                  refetchFavorites()
-                }}
-                onNavigateExplore={() => setActiveTab('explore')}
-              />
-            )}
-
-            {/* TAB 3: Tambah Rekomendasi Tempat Makan */}
-            {activeTab === 'add' && (
-              <CreatePlacePage
-                onBack={() => setActiveTab('explore')}
-                onSuccess={() => {
-                  setActiveTab('explore')
-                  refetch()
-                }}
-              />
-            )}
-
-            {/* TAB 4: Favorit / Tersimpan */}
+            {/* TAB 3: Favorit (Image 2 & Image 4 Screen 6) */}
             {activeTab === 'favorites' && (
               <FavoritesPage
                 favorites={favorites}
@@ -170,32 +201,53 @@ export default function App() {
                   toggleFavorite(r)
                   refetchFavorites()
                 }}
-                onNavigateExplore={() => setActiveTab('explore')}
+                onNavigateExplore={() => handleTabChange('explore')}
               />
             )}
 
-            {/* TAB 5: Profil & Tentang Aplikasi Lokarasa */}
+            {/* TAB 4: Tambah Rekomendasi (CRUD Modul 1 & 2) */}
+            {activeTab === 'add' && (
+              <CreatePlacePage
+                onBack={() => handleTabChange('explore')}
+                onSuccess={() => {
+                  handleTabChange('explore')
+                  refetch()
+                }}
+              />
+            )}
+
+            {/* TAB 5: Profile & Tentang Aplikasi (Image 3 & Image 4 Screen 7 & 8) */}
             {activeTab === 'profile' && (
               <ProfileAboutPage
+                userProfile={currentUser}
+                onProfileUpdate={handleProfileUpdate}
+                onOpenAuth={() => setIsAuthOpen(true)}
                 favoritesCount={favorites.length}
-                onReplaySplash={() => setShowSplash(true)}
+                onNavigateFavorites={() => handleTabChange('favorites')}
               />
             )}
           </>
         )}
       </main>
 
-      {/* Global Bottom Navigation Bar (Requirement #2) */}
+      {/* Global Bottom Navigation Bar (Responsive for Mobile Screens) */}
       <BottomNav
         activeTab={mode === 'list' ? activeTab : ''}
         onTabChange={handleTabChange}
         favCount={favorites.length}
       />
 
-      {/* PWA Badge & Install Banner */}
+      {/* Login & Register Modal Popup */}
+      <AuthModal
+        isOpen={isAuthOpen}
+        onClose={() => setIsAuthOpen(false)}
+        onSuccess={handleAuthSuccess}
+      />
+
+      {/* PWA Install / Update Notification Banner */}
       <PWABadge />
 
-      {/* Confirmation Modal */}
+      {/* Confirmation Modal for Deletion */}
       <ConfirmModal
         open={Boolean(deleteTarget)}
         title="Hapus Tempat Makan"

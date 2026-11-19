@@ -3,7 +3,7 @@ import { supabase, isSupabaseConfigured } from "../config/supabaseClient.js";
 // In-Memory store fallback (Semarang Edition)
 let mockRestaurants = [
   {
-    id: "r2010000-0000-0000-0000-000000000001",
+    id: "d2010000-0000-0000-0000-000000000001",
     name: "Kedai Tinari",
     category_id: "c1010000-0000-0000-0000-000000000001",
     category_name: "Bakso & Mie",
@@ -22,7 +22,7 @@ let mockRestaurants = [
     created_at: new Date().toISOString()
   },
   {
-    id: "r2010000-0000-0000-0000-000000000002",
+    id: "d2010000-0000-0000-0000-000000000002",
     name: "Kedai Melimbah",
     category_id: "c1010000-0000-0000-0000-000000000002",
     category_name: "Kuliner Tradisional",
@@ -41,7 +41,7 @@ let mockRestaurants = [
     created_at: new Date().toISOString()
   },
   {
-    id: "r2010000-0000-0000-0000-000000000003",
+    id: "d2010000-0000-0000-0000-000000000003",
     name: "Warung Makan Budhe",
     category_id: "c1010000-0000-0000-0000-000000000002",
     category_name: "Kuliner Tradisional",
@@ -60,7 +60,7 @@ let mockRestaurants = [
     created_at: new Date().toISOString()
   },
   {
-    id: "r2010000-0000-0000-0000-000000000004",
+    id: "d2010000-0000-0000-0000-000000000004",
     name: "Sami Seneng",
     category_id: "c1010000-0000-0000-0000-000000000003",
     category_name: "Aneka Sambal & Penyetan",
@@ -79,7 +79,7 @@ let mockRestaurants = [
     created_at: new Date().toISOString()
   },
   {
-    id: "r2010000-0000-0000-0000-000000000005",
+    id: "d2010000-0000-0000-0000-000000000005",
     name: "Bak Mie Serangkai",
     category_id: "c1010000-0000-0000-0000-000000000001",
     category_name: "Bakso & Mie",
@@ -98,7 +98,7 @@ let mockRestaurants = [
     created_at: new Date().toISOString()
   },
   {
-    id: "r2010000-0000-0000-0000-000000000006",
+    id: "d2010000-0000-0000-0000-000000000006",
     name: "Niki Nikudon",
     category_id: "c1010000-0000-0000-0000-000000000004",
     category_name: "Asian & Donburi",
@@ -117,7 +117,7 @@ let mockRestaurants = [
     created_at: new Date().toISOString()
   },
   {
-    id: "r2010000-0000-0000-0000-000000000007",
+    id: "d2010000-0000-0000-0000-000000000007",
     name: "Lumpia Gang Lombok No. 1",
     category_id: "c1010000-0000-0000-0000-000000000005",
     category_name: "Street Food & Camilan",
@@ -136,7 +136,7 @@ let mockRestaurants = [
     created_at: new Date().toISOString()
   },
   {
-    id: "r2010000-0000-0000-0000-000000000008",
+    id: "d2010000-0000-0000-0000-000000000008",
     name: "Tahu Gimbal Pak H. Edy",
     category_id: "c1010000-0000-0000-0000-000000000002",
     category_name: "Kuliner Tradisional",
