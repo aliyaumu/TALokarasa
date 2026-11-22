@@ -7,7 +7,8 @@ import {
   ArrowRight,
   Star,
   MapPin,
-  UtensilsCrossed,
+  Clock,
+  BadgePlus,
 } from 'lucide-react'
 import FavoriteButton from '../components/common/FavoriteButton'
 import { formatRupiah, truncate } from '../utils/helpers'
@@ -32,17 +33,22 @@ export default function HomePage({
     return map
   }, [safeFavorites])
 
-  // Most Popular items (rating >= 4.8)
+  // Baru Ditambahkan (Terbaru di Semarang) — Paling atas dari list
+  const recentRestaurants = useMemo(() => {
+    return safeRestaurants.slice(0, 4)
+  }, [safeRestaurants])
+
+  // Most Popular items (Sorted by rating)
   const popularRestaurants = useMemo(() => {
-    return safeRestaurants
-      .filter((r) => Number(r?.rating || 0) >= 4.7)
+    return [...safeRestaurants]
+      .sort((a, b) => Number(b?.rating || 0) - Number(a?.rating || 0))
       .slice(0, 4)
   }, [safeRestaurants])
 
-  // Recommended for you (curated picks)
+  // Recommended for you (Curated picks)
   const recommendedRestaurants = useMemo(() => {
     const recs = safeRestaurants.filter((r) => r?.is_recommended)
-    return recs.length > 0 ? recs.slice(0, 4) : safeRestaurants.slice(0, 4)
+    return recs.length > 0 ? recs.slice(0, 6) : safeRestaurants.slice(0, 6)
   }, [safeRestaurants])
 
   const categories = [
@@ -83,7 +89,7 @@ export default function HomePage({
         )}
       </section>
 
-      {/* Search Bar matching Image 1 & Image 4 */}
+      {/* Search Bar matching Mockup */}
       <form onSubmit={handleSearchSubmit} className="home-search-form">
         <div className="home-search-bar">
           <Search size={18} className="home-search-icon" />
@@ -105,7 +111,7 @@ export default function HomePage({
         </div>
       </form>
 
-      {/* Featured Banner "Explore Taste" (Image 1 & Image 4) */}
+      {/* Featured Banner "Explore Taste" */}
       <section className="home-featured-banner">
         <div className="banner-text-side">
           <span className="banner-badge">
@@ -135,7 +141,7 @@ export default function HomePage({
         </div>
       </section>
 
-      {/* Category Icons Horizontal Scroll (Image 4 Screen 2) */}
+      {/* Category Icons Horizontal Scroll */}
       <section className="home-section">
         <div className="section-head-bar">
           <h3 className="section-title">Kategori Kuliner</h3>
@@ -155,7 +161,76 @@ export default function HomePage({
         </div>
       </section>
 
-      {/* Section 1: Most Popular (Image 1 & Image 4) */}
+      {/* SECTION 1: Baru Ditambahkan / Terbaru (Supaya tempat baru langsung muncul di Beranda!) */}
+      {recentRestaurants.length > 0 && (
+        <section className="home-section">
+          <div className="section-head-bar">
+            <div className="section-head-title-wrap">
+              <BadgePlus size={18} className="accent-orange" />
+              <h3 className="section-title">Baru Ditambahkan</h3>
+            </div>
+            <button
+              type="button"
+              className="section-link-more"
+              onClick={() => onNavigateExplore && onNavigateExplore()}
+            >
+              Lihat Semua &gt;
+            </button>
+          </div>
+
+          <div className="home-card-grid">
+            {recentRestaurants.map((resto, idx) => {
+              const isFav = favMap.has(String(resto.id || resto.name))
+              const isNewlyCreated = String(resto.id).includes('custom') || String(resto.id).includes('resto-') || idx === 0
+              return (
+                <div
+                  key={resto.id || resto.name}
+                  className="dark-food-card"
+                  onClick={() => onSelectRestaurant(resto)}
+                >
+                  <div className="card-thumb-wrap">
+                    <img
+                      src={resto.image_url}
+                      alt={resto.name}
+                      className="card-thumb-img"
+                      loading="lazy"
+                    />
+                    <div className="card-fav-corner">
+                      <FavoriteButton
+                        isFavorited={isFav}
+                        onToggle={() => onToggleFavorite(resto)}
+                        size={16}
+                      />
+                    </div>
+                    {isNewlyCreated && (
+                      <div className="card-new-badge">
+                        <span>BARU</span>
+                      </div>
+                    )}
+                    <div className="card-rating-badge">
+                      <Star size={12} fill="#f59e0b" stroke="#f59e0b" />
+                      <span>{Number(resto.rating || 4.9).toFixed(1)}</span>
+                    </div>
+                  </div>
+
+                  <div className="card-details">
+                    <h4 className="card-name">{resto.name}</h4>
+                    <p className="card-category">{resto.category_name}</p>
+                    <div className="card-bottom-row">
+                      <span className="card-price">{formatRupiah(resto.avg_price || 25000)}</span>
+                      <span className="card-distance">
+                        <MapPin size={11} /> {resto.city || 'Semarang'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </section>
+      )}
+
+      {/* SECTION 2: Rekomendasi Terpopuler */}
       <section className="home-section">
         <div className="section-head-bar">
           <div className="section-head-title-wrap">
@@ -216,7 +291,7 @@ export default function HomePage({
         </div>
       </section>
 
-      {/* Section 2: Recommended for You (Image 1 & Image 4) */}
+      {/* SECTION 3: Pilihan Untukmu di Semarang */}
       <section className="home-section">
         <div className="section-head-bar">
           <div className="section-head-title-wrap">
@@ -267,7 +342,7 @@ export default function HomePage({
                   <div className="card-bottom-row">
                     <span className="card-price">{formatRupiah(resto.avg_price || 25000)}</span>
                     <span className="card-distance">
-                      <MapPin size={11} /> Tembalang
+                      <MapPin size={11} /> {resto.city || 'Semarang'}
                     </span>
                   </div>
                 </div>

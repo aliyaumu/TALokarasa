@@ -181,7 +181,8 @@ export const RestaurantModel = {
         const order = params.order === "asc";
         query = query.order(params.sort_by, { ascending: order });
       } else {
-        query = query.order("rating", { ascending: false });
+        // Tampilkan tempat makan yang baru ditambahkan di paling atas
+        query = query.order("created_at", { ascending: false });
       }
 
       const { data, error } = await query;
@@ -246,22 +247,35 @@ export const RestaurantModel = {
   },
 
   async create(payload) {
+    const CATEGORY_MAP = {
+      "Bakso & Mie": "c1010000-0000-0000-0000-000000000001",
+      "Kuliner Tradisional": "c1010000-0000-0000-0000-000000000002",
+      "Aneka Sambal & Penyetan": "c1010000-0000-0000-0000-000000000003",
+      "Asian & Donburi": "c1010000-0000-0000-0000-000000000004",
+      "Street Food & Camilan": "c1010000-0000-0000-0000-000000000005",
+      "Cafe & Nongkrong": "c1010000-0000-0000-0000-000000000006",
+    };
+
+    const catName = payload.category_name || "Bakso & Mie";
+    const mappedCatId = payload.category_id || CATEGORY_MAP[catName] || null;
+
     const newRecord = {
       name: payload.name,
-      category_id: payload.category_id || null,
-      category_name: payload.category_name || "Kuliner Tradisional",
+      category_id: mappedCatId,
+      category_name: catName,
       address: payload.address || "Semarang",
       city: payload.city || "Semarang",
       price_range: payload.price_range || "$$",
       avg_price: Number(payload.avg_price) || 25000,
-      rating: Number(payload.rating) || 4.8,
-      review_count: 0,
+      rating: Number(payload.rating) || 4.9,
+      review_count: 1,
       description: payload.description || "",
       image_url: payload.image_url || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
       phone: payload.phone || "0812-0000-0000",
       opening_hours: payload.opening_hours || "10:00 - 21:00 WIB",
-      is_recommended: Boolean(payload.is_recommended),
-      signature_menu: Array.isArray(payload.signature_menu) ? payload.signature_menu : [],
+      is_recommended: payload.is_recommended !== undefined ? Boolean(payload.is_recommended) : true,
+      signature_menu: Array.isArray(payload.signature_menu) ? payload.signature_menu : ["Menu Spesial"],
+      created_at: new Date().toISOString(),
     };
 
     if (isSupabaseConfigured) {

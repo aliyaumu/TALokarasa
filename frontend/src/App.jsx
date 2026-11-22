@@ -220,9 +220,9 @@ export default function App() {
             {/* TAB 4: Tambah Rekomendasi (CRUD Modul 1 & 2) */}
             {activeTab === 'add' && (
               <CreatePlacePage
-                onBack={() => handleTabChange('explore')}
+                onBack={() => handleTabChange('home')}
                 onSuccess={() => {
-                  handleTabChange('explore')
+                  handleTabChange('home')
                   refetch()
                 }}
               />
