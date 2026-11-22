@@ -1,11 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import {
   User,
   Settings,
   Bell,
-  Moon,
-  Sun,
-  Globe,
   HelpCircle,
   Shield,
   FileText,
@@ -19,13 +16,57 @@ import {
   Edit2,
   Sparkles,
   ArrowLeft,
-  X,
   Sliders,
   Database,
   Trash2,
-  Smartphone,
+  Camera,
+  Save,
+  RotateCcw,
 } from 'lucide-react'
 import userService from '../services/userService'
+
+const DEFAULT_NAME = 'Aliya Umu'
+const MAX_NAME = 30
+const MIN_NAME = 3
+
+const readPref = (key, fallback) => {
+  try {
+    const v = localStorage.getItem(key)
+    return v === null ? fallback : v
+  } catch {
+    return fallback
+  }
+}
+
+const writePref = (key, value) => {
+  try {
+    localStorage.setItem(key, String(value))
+  } catch {
+    /* penyimpanan penuh / diblokir: abaikan */
+  }
+}
+
+// Potong persegi di tengah + perkecil agar muat di localStorage
+const resizeImage = (file, size = 256) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onerror = () => reject(new Error('Gagal membaca file'))
+    reader.onload = () => {
+      const img = new Image()
+      img.onerror = () => reject(new Error('File bukan gambar yang valid'))
+      img.onload = () => {
+        const side = Math.min(img.width, img.height)
+        const canvas = document.createElement('canvas')
+        canvas.width = size
+        canvas.height = size
+        const ctx = canvas.getContext('2d')
+        ctx.drawImage(img, (img.width - side) / 2, (img.height - side) / 2, side, side, 0, 0, size, size)
+        resolve(canvas.toDataURL('image/jpeg', 0.85))
+      }
+      img.src = reader.result
+    }
+    reader.readAsDataURL(file)
+  })
 
 export default function ProfileAboutPage({
   userProfile,
@@ -34,29 +75,32 @@ export default function ProfileAboutPage({
   favoritesCount = 0,
   onNavigateFavorites,
 }) {
-  // Navigation for sub-screens: 'about' | 'privacy' | 'terms' | 'faq' | 'settings' | 'language' | null
+  // Navigation for sub-screens: 'about' | 'privacy' | 'terms' | 'faq' | 'settings' | null
   const [activeSubView, setActiveSubView] = useState(null)
 
   // Settings State
   const [notificationsEnabled, setNotificationsEnabled] = useState(true)
-  const [themeMode, setThemeMode] = useState(() => localStorage.getItem('lokarasa_theme') || 'Dark')
-  const [language, setLanguage] = useState(() => localStorage.getItem('lokarasa_lang') || 'Indonesia')
-  const [searchRadius, setSearchRadius] = useState(5)
-  const [defaultPriceRange, setDefaultPriceRange] = useState('Semua')
+  const [searchRadius, setSearchRadius] = useState(() => Number(readPref('lokarasa_radius', 5)) || 5)
+  const [defaultPriceRange, setDefaultPriceRange] = useState(() => readPref('lokarasa_price', 'Semua'))
 
   // FAQ Accordion State
   const [openFaqIndex, setOpenFaqIndex] = useState(0)
 
-  // Edit Profile Form
-  const [isEditing, setIsEditing] = useState(false)
-  const [editName, setEditName] = useState(userProfile?.name || 'Saraswati Putri')
+  // Form profil (ada di menu Pengaturan)
+  const fileInputRef = useRef(null)
+  const [editName, setEditName] = useState(userProfile?.name || DEFAULT_NAME)
   const [editBio, setEditBio] = useState(userProfile?.bio || '')
+  const [editCity, setEditCity] = useState(userProfile?.favoriteCity || 'Semarang')
+  const [editAvatar, setEditAvatar] = useState(userProfile?.avatar || null)
+  const [nameError, setNameError] = useState('')
   const [feedback, setFeedback] = useState('')
 
   useEffect(() => {
     if (userProfile) {
-      setEditName(userProfile.name || 'Saraswati Putri')
+      setEditName(userProfile.name || DEFAULT_NAME)
       setEditBio(userProfile.bio || '')
+      setEditCity(userProfile.favoriteCity || 'Semarang')
+      setEditAvatar(userProfile.avatar || null)
     }
   }, [userProfile])
 
@@ -67,17 +111,62 @@ export default function ProfileAboutPage({
 
   const handleSaveProfile = (e) => {
     e.preventDefault()
+    const name = editName.trim()
+    if (name.length < MIN_NAME) {
+      setNameError(`Username minimal ${MIN_NAME} karakter`)
+      return
+    }
+    setNameError('')
+
     const updated = {
       ...userProfile,
-      name: editName.trim() || 'Foodie',
+      name,
       bio: editBio.trim(),
+      favoriteCity: editCity.trim() || 'Semarang',
+      avatar: editAvatar,
     }
     const res = userService.saveUserProfile(updated)
     if (res.success) {
       if (onProfileUpdate) onProfileUpdate(res.data)
-      setIsEditing(false)
       showToast('Profil berhasil diperbarui!')
+    } else {
+      showToast('Gagal menyimpan profil. Coba foto yang lebih kecil.')
     }
+  }
+
+  const handleResetProfile = () => {
+    setEditName(DEFAULT_NAME)
+    setEditBio('')
+    setEditCity('Semarang')
+    setEditAvatar(null)
+    setNameError('')
+    showToast('Form dikembalikan ke default. Tekan "Simpan Perubahan" untuk menerapkan.')
+  }
+
+  const handleAvatarChange = async (e) => {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file) return
+    if (!file.type.startsWith('image/')) {
+      showToast('Pilih file gambar (JPG / PNG).')
+      return
+    }
+    try {
+      setEditAvatar(await resizeImage(file))
+    } catch (err) {
+      showToast(err.message || 'Gagal memproses foto.')
+    }
+  }
+
+  const handleRadiusChange = (value) => {
+    setSearchRadius(value)
+    writePref('lokarasa_radius', value)
+  }
+
+  const handlePriceChange = (value) => {
+    setDefaultPriceRange(value)
+    writePref('lokarasa_price', value)
+    showToast(`Filter harga diatur ke: ${value}`)
   }
 
   const handleLogout = () => {
@@ -86,21 +175,6 @@ export default function ProfileAboutPage({
       onProfileUpdate({ ...userProfile, isLoggedIn: false })
     }
     showToast('Berhasil keluar dari akun.')
-  }
-
-  const handleToggleTheme = () => {
-    const nextTheme = themeMode === 'Dark' ? 'Light' : 'Dark'
-    setThemeMode(nextTheme)
-    localStorage.setItem('lokarasa_theme', nextTheme)
-    document.documentElement.setAttribute('data-theme', nextTheme.toLowerCase())
-    showToast(`Tema diubah ke Mode ${nextTheme}`)
-  }
-
-  const handleSelectLanguage = (lang) => {
-    setLanguage(lang)
-    localStorage.setItem('lokarasa_lang', lang)
-    setActiveSubView(null)
-    showToast(`Bahasa diatur ke ${lang === 'Indonesia' ? 'Bahasa Indonesia' : 'English'}`)
   }
 
   const handleClearCache = () => {
@@ -373,10 +447,121 @@ export default function ProfileAboutPage({
           >
             <ArrowLeft size={18} />
           </button>
-          <h2 className="sub-header-title">Pengaturan Aplikasi</h2>
+          <h2 className="sub-header-title">Pengaturan</h2>
         </div>
 
         <div className="sub-screen-content">
+          {feedback && (
+            <div className="profile-toast-success">
+              <Check size={16} /> <span>{feedback}</span>
+            </div>
+          )}
+
+          {/* Profil Akun: username, bio, kota, foto */}
+          <form onSubmit={handleSaveProfile} className="settings-panel-card" noValidate>
+            <div className="panel-title-row">
+              <User size={18} className="accent-orange" />
+              <h3 className="panel-title">Profil Akun</h3>
+            </div>
+            <p className="panel-desc">Ubah username, bio, kota, dan foto profilmu.</p>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, margin: '12px 0 16px' }}>
+              <div className="profile-avatar-circle" style={{ margin: 0, overflow: 'hidden' }}>
+                {editAvatar ? (
+                  <img
+                    src={editAvatar}
+                    alt="Foto profil"
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
+                  />
+                ) : (
+                  <User size={36} color="#ffffff" />
+                )}
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  hidden
+                  onChange={handleAvatarChange}
+                />
+                <button
+                  type="button"
+                  className="btn btn--outline btn--sm"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <Camera size={14} /> Ganti Foto
+                </button>
+                {editAvatar && (
+                  <button
+                    type="button"
+                    className="btn btn--outline btn--sm"
+                    onClick={() => setEditAvatar(null)}
+                  >
+                    <Trash2 size={14} /> Hapus Foto
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label" htmlFor="profile-username">Username</label>
+              <input
+                id="profile-username"
+                type="text"
+                value={editName}
+                maxLength={MAX_NAME}
+                onChange={(e) => {
+                  setEditName(e.target.value)
+                  if (nameError) setNameError('')
+                }}
+                className="dark-input"
+                placeholder={DEFAULT_NAME}
+                aria-invalid={Boolean(nameError)}
+              />
+              {nameError && (
+                <span role="alert" style={{ color: '#ef4444', fontSize: 12, marginTop: 4, display: 'block' }}>
+                  {nameError}
+                </span>
+              )}
+            </div>
+
+            <div className="form-group">
+              <label className="form-label" htmlFor="profile-bio">Bio Selera Kuliner</label>
+              <textarea
+                id="profile-bio"
+                value={editBio}
+                onChange={(e) => setEditBio(e.target.value)}
+                className="dark-textarea"
+                rows={2}
+                maxLength={120}
+                placeholder="Contoh: Pemburu kuliner pedas & bakmie Tembalang..."
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label" htmlFor="profile-city">Kota Favorit</label>
+              <input
+                id="profile-city"
+                type="text"
+                value={editCity}
+                maxLength={40}
+                onChange={(e) => setEditCity(e.target.value)}
+                className="dark-input"
+                placeholder="Semarang"
+              />
+            </div>
+
+            <div className="form-btn-row">
+              <button type="button" className="btn btn--outline btn--sm" onClick={handleResetProfile}>
+                <RotateCcw size={14} /> Reset
+              </button>
+              <button type="submit" className="btn btn--primary btn--sm">
+                <Save size={14} /> Simpan Perubahan
+              </button>
+            </div>
+          </form>
+
           {/* Radius Pencarian */}
           <div className="settings-panel-card">
             <div className="panel-title-row">
@@ -392,7 +577,7 @@ export default function ProfileAboutPage({
                 min="1"
                 max="20"
                 value={searchRadius}
-                onChange={(e) => setSearchRadius(Number(e.target.value))}
+                onChange={(e) => handleRadiusChange(Number(e.target.value))}
                 className="radius-range-input"
               />
               <div className="slider-labels">
@@ -414,10 +599,7 @@ export default function ProfileAboutPage({
                   key={p}
                   type="button"
                   className={`pref-chip ${defaultPriceRange === p ? 'active' : ''}`}
-                  onClick={() => {
-                    setDefaultPriceRange(p)
-                    showToast(`Filter harga diatur ke: ${p}`)
-                  }}
+                  onClick={() => handlePriceChange(p)}
                 >
                   {p}
                 </button>
@@ -447,61 +629,6 @@ export default function ProfileAboutPage({
   }
 
   // --------------------------------------------------------------------------
-  // MODAL: PILIHAN BAHASA
-  // --------------------------------------------------------------------------
-  const renderLanguageModal = () => {
-    if (activeSubView !== 'language') return null
-    return (
-      <div className="modal-backdrop" onClick={() => setActiveSubView(null)}>
-        <div className="modal-box language-modal" onClick={(e) => e.stopPropagation()}>
-          <div className="modal-header">
-            <div className="modal-icon-badge">
-              <Globe size={22} color="#f97316" />
-            </div>
-            <h3 className="modal-title">Pilih Bahasa Aplikasi</h3>
-          </div>
-
-          <div className="language-options-list">
-            <button
-              type="button"
-              className={`lang-option-card ${language === 'Indonesia' ? 'active' : ''}`}
-              onClick={() => handleSelectLanguage('Indonesia')}
-            >
-              <span className="lang-flag">🇮🇩</span>
-              <div className="lang-info">
-                <span className="lang-name">Bahasa Indonesia</span>
-                <span className="lang-sub">Bahasa Utama (Rekomendasi)</span>
-              </div>
-              {language === 'Indonesia' && <Check size={18} className="accent-orange" />}
-            </button>
-
-            <button
-              type="button"
-              className={`lang-option-card ${language === 'English' ? 'active' : ''}`}
-              onClick={() => handleSelectLanguage('English')}
-            >
-              <span className="lang-flag">🇬🇧</span>
-              <div className="lang-info">
-                <span className="lang-name">English</span>
-                <span className="lang-sub">International Language</span>
-              </div>
-              {language === 'English' && <Check size={18} className="accent-orange" />}
-            </button>
-          </div>
-
-          <button
-            type="button"
-            className="btn btn--outline btn--full"
-            onClick={() => setActiveSubView(null)}
-          >
-            Tutup
-          </button>
-        </div>
-      </div>
-    )
-  }
-
-  // --------------------------------------------------------------------------
   // MAIN PROFILE SCREEN (Image 3 & Image 4 Screen 7)
   // --------------------------------------------------------------------------
   return (
@@ -516,19 +643,27 @@ export default function ProfileAboutPage({
 
       {/* User Card */}
       <div className="profile-user-card">
-        <div className="profile-avatar-circle">
-          <User size={36} color="#ffffff" />
+        <div className="profile-avatar-circle" style={{ overflow: 'hidden' }}>
+          {userProfile?.avatar ? (
+            <img
+              src={userProfile.avatar}
+              alt="Foto profil"
+              style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
+            />
+          ) : (
+            <User size={36} color="#ffffff" />
+          )}
         </div>
 
         <div className="profile-user-info">
           <div className="profile-user-name-row">
-            <h2 className="profile-user-name">{userProfile?.name || 'Pengguna'}</h2>
+            <h2 className="profile-user-name">{userProfile?.name || DEFAULT_NAME}</h2>
             <button
               type="button"
               className="profile-edit-trigger"
-              onClick={() => setIsEditing(!isEditing)}
-              title="Edit Nama / Profil"
-              aria-label="Edit Profil"
+              onClick={() => setActiveSubView('settings')}
+              title="Ubah Username / Profil"
+              aria-label="Ubah Profil"
             >
               <Edit2 size={16} />
             </button>
@@ -536,47 +671,9 @@ export default function ProfileAboutPage({
           <span className="profile-user-email">
             {userProfile?.isLoggedIn ? userProfile.email : 'user@mail.com (Tamu)'}
           </span>
-          <span className="profile-city-badge">Semarang Foodie</span>
+          <span className="profile-city-badge">{userProfile?.favoriteCity || 'Semarang'} Foodie</span>
         </div>
       </div>
-
-      {/* Edit Profil Form Accordion */}
-      {isEditing && (
-        <form onSubmit={handleSaveProfile} className="profile-inline-form">
-          <div className="form-group">
-            <label className="form-label">Nama Lengkap</label>
-            <input
-              type="text"
-              value={editName}
-              onChange={(e) => setEditName(e.target.value)}
-              className="dark-input"
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label className="form-label">Bio Selera Kuliner</label>
-            <textarea
-              value={editBio}
-              onChange={(e) => setEditBio(e.target.value)}
-              className="dark-textarea"
-              rows={2}
-              placeholder="Contoh: Pemburu kuliner pedas & bakmie Tembalang..."
-            />
-          </div>
-          <div className="form-btn-row">
-            <button
-              type="button"
-              className="btn btn--outline btn--sm"
-              onClick={() => setIsEditing(false)}
-            >
-              Batal
-            </button>
-            <button type="submit" className="btn btn--primary btn--sm">
-              Simpan Profil
-            </button>
-          </div>
-        </form>
-      )}
 
       {/* ACCOUNT SETTINGS (Image 3) */}
       <div className="settings-group">
@@ -601,7 +698,7 @@ export default function ProfileAboutPage({
           </div>
           <div className="settings-item-text">
             <span className="settings-title">Pengaturan</span>
-            <span className="settings-desc">Radius lokasi, harga, dan cache</span>
+            <span className="settings-desc">Username, bio, foto, radius &amp; cache</span>
           </div>
           <ChevronRight size={18} className="settings-arrow" />
         </div>
@@ -628,31 +725,7 @@ export default function ProfileAboutPage({
           </label>
         </div>
 
-        {/* 4. Tema Aplikasi (Switch Dark/Light) */}
-        <div className="settings-item-card" onClick={handleToggleTheme}>
-          <div className="settings-icon-box" style={{ background: 'rgba(59, 130, 246, 0.15)', color: '#3b82f6' }}>
-            {themeMode === 'Dark' ? <Moon size={18} /> : <Sun size={18} />}
-          </div>
-          <div className="settings-item-text">
-            <span className="settings-title">Tema Aplikasi</span>
-            <span className="settings-desc">Sentuh untuk beralih mode gelap / terang</span>
-          </div>
-          <span className="settings-value-pill">{themeMode}</span>
-        </div>
-
-        {/* 5. Bahasa */}
-        <div className="settings-item-card" onClick={() => setActiveSubView('language')}>
-          <div className="settings-icon-box" style={{ background: 'rgba(20, 184, 166, 0.15)', color: '#14b8a6' }}>
-            <Globe size={18} />
-          </div>
-          <div className="settings-item-text">
-            <span className="settings-title">Bahasa</span>
-            <span className="settings-desc">{language}</span>
-          </div>
-          <ChevronRight size={18} className="settings-arrow" />
-        </div>
-
-        {/* 6. Bantuan & FAQ */}
+        {/* 4. Bantuan & FAQ */}
         <div className="settings-item-card" onClick={() => setActiveSubView('faq')}>
           <div className="settings-icon-box" style={{ background: 'rgba(99, 102, 241, 0.15)', color: '#6366f1' }}>
             <HelpCircle size={18} />
@@ -669,7 +742,7 @@ export default function ProfileAboutPage({
       <div className="settings-group">
         <span className="settings-group-label">LEGAL &amp; PRIVACY</span>
 
-        {/* 7. Tentang Aplikasi */}
+        {/* 5. Tentang Aplikasi */}
         <div className="settings-item-card" onClick={() => setActiveSubView('about')}>
           <div className="settings-icon-box" style={{ background: 'rgba(249, 115, 22, 0.15)', color: '#f97316' }}>
             <Info size={18} />
@@ -681,7 +754,7 @@ export default function ProfileAboutPage({
           <ChevronRight size={18} className="settings-arrow" />
         </div>
 
-        {/* 8. Kebijakan Privasi */}
+        {/* 6. Kebijakan Privasi */}
         <div className="settings-item-card" onClick={() => setActiveSubView('privacy')}>
           <div className="settings-icon-box" style={{ background: 'rgba(59, 130, 246, 0.15)', color: '#3b82f6' }}>
             <Shield size={18} />
@@ -693,7 +766,7 @@ export default function ProfileAboutPage({
           <ChevronRight size={18} className="settings-arrow" />
         </div>
 
-        {/* 9. Ketentuan Layanan */}
+        {/* 7. Ketentuan Layanan */}
         <div className="settings-item-card" onClick={() => setActiveSubView('terms')}>
           <div className="settings-icon-box" style={{ background: 'rgba(168, 85, 247, 0.15)', color: '#a855f7' }}>
             <FileText size={18} />
@@ -733,8 +806,6 @@ export default function ProfileAboutPage({
         )}
       </div>
 
-      {/* Language Modal */}
-      {renderLanguageModal()}
     </div>
   )
 }
