@@ -1,9 +1,9 @@
-import { Home, Compass, Heart, User } from 'lucide-react'
+import { Home, Compass, Plus, Heart, User } from 'lucide-react'
 
 /**
- * BottomNav — Bottom Navigation Bar khusus aplikasi mobile PWA
+ * BottomNav — Bottom Navigation Bar khusus PWA
  * Memenuhi syarat: "2. Memiliki Bottom Navigation Bar."
- * Tampilan & Ikon disesuaikan dengan Mockup UI (Beranda, Explore, Favorit, Profile)
+ * Memiliki 5 Tab utama: Beranda, Explore, + Tambah (CRUD), Favorit, Profile
  */
 export default function BottomNav({ activeTab, onTabChange, favCount = 0 }) {
   const tabs = [
@@ -16,6 +16,12 @@ export default function BottomNav({ activeTab, onTabChange, favCount = 0 }) {
       id: 'explore',
       label: 'Explore',
       icon: Compass,
+    },
+    {
+      id: 'add',
+      label: 'Tambah',
+      icon: Plus,
+      isAction: true,
     },
     {
       id: 'favorites',
@@ -31,11 +37,29 @@ export default function BottomNav({ activeTab, onTabChange, favCount = 0 }) {
   ]
 
   return (
-    <nav className="bottom-nav" aria-label="Navigasi Utama">
+    <nav className="bottom-nav" aria-label="Navigasi Utama PWA">
       <div className="bottom-nav-inner">
         {tabs.map((tab) => {
           const Icon = tab.icon
           const isActive = activeTab === tab.id
+
+          if (tab.isAction) {
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                className={`bottom-nav-action-btn ${isActive ? 'bottom-nav-action-btn--active' : ''}`}
+                onClick={() => onTabChange(tab.id)}
+                aria-label="Tambah Rekomendasi Tempat Makan (CRUD)"
+                title="Tambah Tempat Makan"
+              >
+                <div className="bottom-action-circle">
+                  <Icon size={24} strokeWidth={2.8} />
+                </div>
+                <span className="bottom-nav-label">Tambah</span>
+              </button>
+            )
+          }
 
           return (
             <button

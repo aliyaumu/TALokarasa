@@ -1,72 +1,31 @@
-import { Utensils, Bell, LayoutGrid, Heart, Compass, Home, User, PlusCircle, LogIn, WifiOff } from 'lucide-react'
+import { Utensils, Bell, LogIn, WifiOff } from 'lucide-react'
 
 export default function Header({
   activeTab,
   onTabChange,
-  favCount = 0,
   userProfile,
   onOpenAuth,
   isOffline,
-  onNavigateAdd,
 }) {
   return (
     <header className="app-header">
       <div className="header-container">
         {/* Left: Brand / Logo */}
-        <div className="header-brand" onClick={() => onTabChange('home')} role="button" tabIndex={0}>
+        <div
+          className="header-brand"
+          onClick={() => onTabChange('home')}
+          role="button"
+          tabIndex={0}
+          title="Kembali ke Beranda"
+        >
           <div className="header-logo-badge">
             <Utensils size={18} color="#ffffff" />
           </div>
           <div className="header-brand-text">
             <span className="brand-title">Lokarasa</span>
-            <span className="brand-subtitle">Semarang Foodie</span>
+            <span className="brand-subtitle">Kuliner Semarang</span>
           </div>
         </div>
-
-        {/* Center: Desktop Navigation Bar (Visible on Web / Desktop >= 768px) */}
-        <nav className="desktop-nav" aria-label="Navigasi Desktop">
-          <button
-            type="button"
-            className={`desktop-nav-link ${activeTab === 'home' ? 'active' : ''}`}
-            onClick={() => onTabChange('home')}
-          >
-            <Home size={16} />
-            <span>Beranda</span>
-          </button>
-          <button
-            type="button"
-            className={`desktop-nav-link ${activeTab === 'explore' ? 'active' : ''}`}
-            onClick={() => onTabChange('explore')}
-          >
-            <Compass size={16} />
-            <span>Explore</span>
-          </button>
-          <button
-            type="button"
-            className={`desktop-nav-link ${activeTab === 'favorites' ? 'active' : ''}`}
-            onClick={() => onTabChange('favorites')}
-          >
-            <Heart size={16} />
-            <span>Favorit</span>
-            {favCount > 0 && <span className="nav-pill-badge">{favCount}</span>}
-          </button>
-          <button
-            type="button"
-            className={`desktop-nav-link ${activeTab === 'add' ? 'active' : ''}`}
-            onClick={() => onTabChange('add')}
-          >
-            <PlusCircle size={16} />
-            <span>Tambah Rekomendasi</span>
-          </button>
-          <button
-            type="button"
-            className={`desktop-nav-link ${activeTab === 'profile' ? 'active' : ''}`}
-            onClick={() => onTabChange('profile')}
-          >
-            <User size={16} />
-            <span>Profile</span>
-          </button>
-        </nav>
 
         {/* Right: Actions (Notification & User / Login) */}
         <div className="header-actions">
@@ -81,7 +40,7 @@ export default function Header({
           <button
             type="button"
             className="header-icon-btn"
-            title="Notifikasi"
+            title="Notifikasi &amp; Pengaturan"
             onClick={() => onTabChange('profile')}
             aria-label="Notifikasi"
           >
