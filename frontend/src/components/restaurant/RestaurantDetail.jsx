@@ -327,7 +327,7 @@ export default function RestaurantDetail({
           </div>
 
           {/* Form Tambah Ulasan */}
-          <form onSubmit={handleSubmitReview} className="dark-review-form">
+          <form onSubmit={handleSubmitReview} className="dark-review-form" noValidate>
             <h4 className="review-form-prompt">Bagikan Pengalaman Kuliner Anda</h4>
 
             <div className="review-stars-picker">

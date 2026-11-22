@@ -47,7 +47,7 @@ export default function App() {
 
   // Data fetching from Supabase / Local fallback
   const { restaurants = [], loading, error, isLocal, refetch } = useRestaurants()
-  const { favorites = [], toggleFavorite, removeFavorite, isFavorited, refetch: refetchFavorites } = useFavorites()
+  const { favorites = [], toggleFavorite, removeFavorite, clearFavorites, isFavorited, refetch: refetchFavorites } = useFavorites()
 
   // Sync user profile state
   useEffect(() => {
@@ -184,6 +184,8 @@ export default function App() {
                   toggleFavorite(r)
                   refetchFavorites()
                 }}
+                onEditRestaurant={handleEditRestaurant}
+                onDeleteRestaurant={(r) => setDeleteTarget(r)}
                 onNavigateExplore={handleNavigateExplore}
                 onOpenAuth={() => setIsAuthOpen(true)}
               />
@@ -202,6 +204,8 @@ export default function App() {
                   toggleFavorite(r)
                   refetchFavorites()
                 }}
+                onEditRestaurant={handleEditRestaurant}
+                onDeleteRestaurant={(r) => setDeleteTarget(r)}
                 initialQuery={exploreQuery}
                 initialCategory={exploreCategory}
                 onNavigateAdd={() => handleTabChange('add')}
@@ -215,6 +219,10 @@ export default function App() {
                 onSelectRestaurant={handleSelectRestaurant}
                 onToggleFavorite={(r) => {
                   toggleFavorite(r)
+                  refetchFavorites()
+                }}
+                onClearFavorites={() => {
+                  if (clearFavorites) clearFavorites()
                   refetchFavorites()
                 }}
                 onNavigateExplore={() => handleTabChange('explore')}
@@ -255,7 +263,7 @@ export default function App() {
 
       {/* Login & Register Modal Popup */}
       <AuthModal
-        isOpen={isAuthOpen}
+        open={isAuthOpen}
         onClose={() => setIsAuthOpen(false)}
         onSuccess={handleAuthSuccess}
       />

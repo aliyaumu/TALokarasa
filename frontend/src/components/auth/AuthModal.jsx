@@ -2,7 +2,9 @@ import { useState } from 'react'
 import { X, Lock, Mail, User, ArrowRight, CheckCircle2, AlertCircle, Sparkles } from 'lucide-react'
 import { loginUser, registerUser } from '../../services/userService'
 
-export default function AuthModal({ open, onClose, onSuccess }) {
+export default function AuthModal({ open, isOpen, onClose, onSuccess }) {
+  // Terima `open` maupun `isOpen` supaya tidak salah nama prop lagi
+  const visible = open ?? isOpen
   const [tab, setTab] = useState('login') // 'login' | 'register'
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -11,7 +13,7 @@ export default function AuthModal({ open, onClose, onSuccess }) {
   const [errorMsg, setErrorMsg] = useState('')
   const [successMsg, setSuccessMsg] = useState('')
 
-  if (!open) return null
+  if (!visible) return null
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -51,9 +53,9 @@ export default function AuthModal({ open, onClose, onSuccess }) {
   }
 
   const handleQuickDemo = () => {
-    setEmail('saras@lokarasa.id')
+    setEmail('aliya@lokarasa.id')
     setPassword('semarang123')
-    setName('Saraswati Putri')
+    setName('Aliya Umu')
   }
 
   return (
@@ -120,7 +122,7 @@ export default function AuthModal({ open, onClose, onSuccess }) {
                 <User size={18} className="auth-input-icon" />
                 <input
                   type="text"
-                  placeholder="Contoh: Saraswati Putri"
+                  placeholder="Contoh: Aliya Umu"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="auth-input"
@@ -181,7 +183,7 @@ export default function AuthModal({ open, onClose, onSuccess }) {
             className="auth-demo-btn"
             onClick={handleQuickDemo}
           >
-            ⚡ Isi Akun Demo Cepat (Saraswati)
+            ⚡ Isi Akun Demo Cepat (Aliya)
           </button>
         </form>
       </div>
