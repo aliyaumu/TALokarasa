@@ -2,6 +2,26 @@ import { apiClient } from '../config/api'
 import { INITIAL_RESTAURANTS } from '../data/initialRestaurants'
 
 const LOCAL_STORAGE_KEY = 'lokarasa_user_added_restaurants'
+const DELETED_IDS_KEY = 'lokarasa_deleted_restaurant_ids'
+
+const getDeletedIds = () => {
+  try {
+    const raw = localStorage.getItem(DELETED_IDS_KEY)
+    return raw ? new Set(JSON.parse(raw).map(String)) : new Set()
+  } catch {
+    return new Set()
+  }
+}
+
+const addDeletedId = (id) => {
+  try {
+    const set = getDeletedIds()
+    set.add(String(id))
+    localStorage.setItem(DELETED_IDS_KEY, JSON.stringify([...set]))
+  } catch (err) {
+    console.error('Failed to save deleted ID:', err)
+  }
+}
 
 const getStoredCustomRestaurants = () => {
   try {
@@ -25,7 +45,7 @@ const saveCustomRestaurant = (resto) => {
 const deleteStoredCustomRestaurant = (id) => {
   try {
     const list = getStoredCustomRestaurants()
-    const updated = list.filter((r) => r.id !== id)
+    const updated = list.filter((r) => String(r.id) !== String(id))
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated))
   } catch (err) {
     console.error('Failed to delete from localStorage:', err)
@@ -38,6 +58,7 @@ let localRestaurants = [...INITIAL_RESTAURANTS]
 class RestaurantService {
   async getRestaurants(params = {}) {
     const customRestos = getStoredCustomRestaurants()
+    const deletedIds = getDeletedIds()
 
     try {
       const cleanParams = Object.fromEntries(
@@ -50,7 +71,9 @@ class RestaurantService {
       const existingIds = new Set(serverList.map((r) => String(r.id || r.name)))
       const missingCustom = customRestos.filter((r) => !existingIds.has(String(r.id || r.name)))
 
-      const combined = [...missingCustom, ...serverList]
+      const combined = [...missingCustom, ...serverList].filter(
+        (r) => !deletedIds.has(String(r.id)) && !deletedIds.has(String(r.name))
+      )
       return { success: true, data: combined }
     } catch (err) {
       console.warn('[RestaurantService] Beralih ke data lokal:', err.message)
@@ -58,7 +81,9 @@ class RestaurantService {
       const existingIds = new Set(localRestaurants.map((r) => String(r.id || r.name)))
       const missingCustom = customRestos.filter((r) => !existingIds.has(String(r.id || r.name)))
 
-      let result = [...missingCustom, ...localRestaurants]
+      let result = [...missingCustom, ...localRestaurants].filter(
+        (r) => !deletedIds.has(String(r.id)) && !deletedIds.has(String(r.name))
+      )
       if (params.search) {
         const q = params.search.toLowerCase()
         result = result.filter(
@@ -139,6 +164,7 @@ class RestaurantService {
   }
 
   async deleteRestaurant(id) {
+    addDeletedId(id)
     deleteStoredCustomRestaurant(id)
     localRestaurants = localRestaurants.filter((r) => String(r.id) !== String(id))
 

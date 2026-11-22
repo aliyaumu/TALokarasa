@@ -47,7 +47,7 @@ export default function App() {
 
   // Data fetching from Supabase / Local fallback
   const { restaurants = [], loading, error, isLocal, refetch } = useRestaurants()
-  const { favorites = [], toggleFavorite, isFavorited, refetch: refetchFavorites } = useFavorites()
+  const { favorites = [], toggleFavorite, removeFavorite, isFavorited, refetch: refetchFavorites } = useFavorites()
 
   // Sync user profile state
   useEffect(() => {
@@ -113,6 +113,8 @@ export default function App() {
     try {
       setDeleting(true)
       await restaurantService.deleteRestaurant(deleteTarget.id)
+      // also remove from favorites if present
+      if (removeFavorite) removeFavorite(deleteTarget.id)
       setDeleteTarget(null)
       handleBackToList()
       refetch()
@@ -151,6 +153,8 @@ export default function App() {
               toggleFavorite(selectedRestaurant)
               refetchFavorites()
             }}
+            userProfile={currentUser}
+            onOpenAuth={() => setIsAuthOpen(true)}
           />
         )}
 

@@ -3694,3 +3694,102 @@ input:checked + .toggle-slider:before {
   font-size: 0.74rem;
   color: var(--text-dim);
 }
+
+/* ============================================================
+   DETAIL PAGE — CRUD Management Card (Edit & Hapus)
+   ============================================================ */
+
+.detail-mgmt-card {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.06), rgba(249, 115, 22, 0.06));
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-top: 4px;
+}
+
+.mgmt-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.mgmt-card-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.mgmt-card-badge {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: var(--primary);
+  background: var(--primary-light);
+  border-radius: 6px;
+  padding: 2px 7px;
+  letter-spacing: 0.06em;
+}
+
+.detail-crud-buttons-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.btn-mgmt-edit,
+.btn-mgmt-delete {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 0.84rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+  line-height: 1;
+}
+
+.btn-mgmt-edit {
+  background: rgba(249, 115, 22, 0.14);
+  color: var(--primary);
+  border: 1px solid rgba(249, 115, 22, 0.3);
+}
+
+.btn-mgmt-edit:hover {
+  background: rgba(249, 115, 22, 0.25);
+  border-color: var(--primary);
+  transform: translateY(-1px);
+}
+
+.btn-mgmt-delete {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.btn-mgmt-delete:hover {
+  background: rgba(239, 68, 68, 0.22);
+  border-color: #ef4444;
+  transform: translateY(-1px);
+}
+
+/* Danger variant for circle button on top nav */
+.detail-circle-btn--danger {
+  border-color: rgba(239, 68, 68, 0.35) !important;
+}
+
+.detail-circle-btn--danger:hover {
+  background: rgba(239, 68, 68, 0.15) !important;
+  border-color: #ef4444 !important;
+}
+
+/* Single-button layout when only delete OR only edit */
+.detail-crud-buttons-grid:has(.btn-mgmt-edit:only-child),
+.detail-crud-buttons-grid:has(.btn-mgmt-delete:only-child) {
+  grid-template-columns: 1fr;
+}

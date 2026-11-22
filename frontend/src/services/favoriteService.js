@@ -38,6 +38,19 @@ class FavoriteService {
     }
   }
 
+  removeFavorite(restaurantId) {
+    try {
+      const current = this.getFavorites()
+      const filtered = current.filter(
+        (item) => String(item.id || item.name) !== String(restaurantId)
+      )
+      localStorage.setItem(FAV_KEY, JSON.stringify(filtered))
+      return { success: true, total: filtered.length }
+    } catch (err) {
+      return { success: false, message: err.message }
+    }
+  }
+
   isFavorited(restaurantId) {
     const current = this.getFavorites()
     return current.some(

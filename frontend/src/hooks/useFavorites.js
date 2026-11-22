@@ -29,10 +29,16 @@ export function useFavorites() {
 
   const isFavorited = (id) => favoriteService.isFavorited(id)
 
+  const removeFavorite = (restaurantId) => {
+    favoriteService.removeFavorite(restaurantId)
+    fetchFavorites()
+  }
+
   return {
     favorites,
     loading,
     toggleFavorite,
+    removeFavorite,
     isFavorited,
     refetch: fetchFavorites,
   }

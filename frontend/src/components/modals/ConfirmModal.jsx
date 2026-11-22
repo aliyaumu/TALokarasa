@@ -5,13 +5,18 @@ export default function ConfirmModal({
   title,
   message,
   confirmLabel = 'Ya, Lanjutkan',
+  confirmText,
   cancelLabel = 'Batal',
+  cancelText,
   danger = false,
   loading = false,
   onConfirm,
   onCancel,
 }) {
   if (!open) return null
+
+  const finalConfirmLabel = confirmText || confirmLabel
+  const finalCancelLabel = cancelText || cancelLabel
 
   return (
     <div className="modal-backdrop" onClick={onCancel}>
@@ -35,7 +40,7 @@ export default function ConfirmModal({
             onClick={onCancel}
             disabled={loading}
           >
-            {cancelLabel}
+            {finalCancelLabel}
           </button>
           <button
             type="button"
@@ -43,7 +48,7 @@ export default function ConfirmModal({
             onClick={onConfirm}
             disabled={loading}
           >
-            {loading ? 'Memproses…' : confirmLabel}
+            {loading ? 'Memproses…' : finalConfirmLabel}
           </button>
         </div>
       </div>

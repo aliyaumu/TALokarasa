@@ -13,6 +13,8 @@ import {
   ExternalLink,
   Heart,
   Navigation,
+  Pencil,
+  Trash2,
 } from 'lucide-react'
 import { useReviews, useCreateReview } from '../../hooks/useReviews'
 import { formatRupiah, calculateAverageRating } from '../../utils/helpers'
@@ -119,11 +121,34 @@ export default function RestaurantDetail({
         </button>
 
         <div className="detail-top-actions">
+          {onEdit && (
+            <button
+              type="button"
+              className="detail-circle-btn"
+              onClick={() => onEdit(restaurant)}
+              aria-label="Ubah Data Tempat"
+              title="Ubah Data Tempat"
+            >
+              <Pencil size={17} />
+            </button>
+          )}
+          {onDelete && (
+            <button
+              type="button"
+              className="detail-circle-btn detail-circle-btn--danger"
+              onClick={() => onDelete(restaurant)}
+              aria-label="Hapus Tempat Makan"
+              title="Hapus Tempat Makan"
+            >
+              <Trash2 size={17} color="#ef4444" />
+            </button>
+          )}
           <button
             type="button"
             className="detail-circle-btn"
             onClick={handleShare}
             aria-label="Bagikan"
+            title="Bagikan"
           >
             <Share2 size={18} />
           </button>
@@ -132,6 +157,7 @@ export default function RestaurantDetail({
             className={`detail-circle-btn ${isFavorited ? 'detail-circle-btn--active' : ''}`}
             onClick={onToggleFavorite}
             aria-label="Favorit"
+            title="Simpan Favorit"
           >
             <Heart size={18} fill={isFavorited ? '#f97316' : 'none'} stroke={isFavorited ? '#f97316' : '#ffffff'} />
           </button>
@@ -243,6 +269,38 @@ export default function RestaurantDetail({
             <span>{isFavorited ? 'Tersimpan di Favorit' : 'Tambah ke Favorit'}</span>
           </button>
         </div>
+
+        {/* CRUD Management Card (Edit & Delete) */}
+        {(onEdit || onDelete) && (
+          <div className="detail-mgmt-card">
+            <div className="mgmt-card-header">
+              <span className="mgmt-card-title">Kelola Rekomendasi Ini</span>
+              <span className="mgmt-card-badge">CRUD</span>
+            </div>
+            <div className="detail-crud-buttons-grid">
+              {onEdit && (
+                <button
+                  type="button"
+                  className="btn-mgmt-edit"
+                  onClick={() => onEdit(restaurant)}
+                >
+                  <Pencil size={16} />
+                  <span>Ubah Data Tempat</span>
+                </button>
+              )}
+              {onDelete && (
+                <button
+                  type="button"
+                  className="btn-mgmt-delete"
+                  onClick={() => onDelete(restaurant)}
+                >
+                  <Trash2 size={16} />
+                  <span>Hapus Tempat Makan</span>
+                </button>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Reviews Section */}
         <section className="detail-block-section reviews-block">
