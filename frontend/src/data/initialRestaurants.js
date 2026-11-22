@@ -166,7 +166,7 @@ export const INITIAL_RESTAURANTS = [
   },
   {
     id: 'd2010000-0000-0000-0000-000000000009',
-    name: 'Warung Makan Berkah 'Budhe'',
+    name: "Warung Makan Berkah 'Budhe'",
     category_id: 'c1010000-0000-0000-0000-000000000002',
     category_name: 'Kuliner Tradisional',
     address: 'Jl. Banjarsari Selatan No.12, Tembalang, Kec. Banyumanik, Kota Semarang',
