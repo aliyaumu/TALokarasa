@@ -264,9 +264,3 @@ git push -u origin main
 ```
 
 ---
-
-## 👥 Pengembang / Mahasiswa
-
-- **Nama Praktikan:** Aliya
-- **Mata Kuliah:** Praktikum Pemrograman Perangkat Bergerak (PPB)
-- **Topik TA:** Lokarasa - Progressive Web Application (PWA) & RESTful Web Service
