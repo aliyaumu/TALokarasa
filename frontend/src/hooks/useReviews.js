@@ -58,3 +58,21 @@ export function useCreateReview() {
 
   return { createReview, loading, error }
 }
+
+export function useDeleteReview() {
+  const [loading, setLoading] = useState(false)
+
+  const deleteReview = async (id) => {
+    try {
+      setLoading(true)
+      await reviewService.deleteReview(id)
+      return { ok: true }
+    } catch (err) {
+      return { ok: false, message: err.message || 'Gagal menghapus ulasan' }
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return { deleteReview, loading }
+}

@@ -1,7 +1,28 @@
 import { useState, useMemo } from 'react'
-import { Search, Star, MapPin, X, UtensilsCrossed, Loader, AlertTriangle } from 'lucide-react'
+import { Search, Star, MapPin, X, UtensilsCrossed, Loader, AlertTriangle, Pencil, Trash2 } from 'lucide-react'
 import FavoriteButton from '../components/common/FavoriteButton'
 import { matchesSearch, matchesCategory, sortRestaurants, formatRupiah } from '../utils/helpers'
+
+// Gaya tombol ikon Edit / Hapus pada baris kartu
+const iconBtn = {
+  width: 30,
+  height: 30,
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  borderRadius: 8,
+  cursor: 'pointer',
+  border: '1px solid rgba(255,255,255,0.15)',
+  background: 'rgba(255,255,255,0.06)',
+  color: 'inherit',
+  padding: 0,
+}
+const iconBtnDanger = {
+  ...iconBtn,
+  border: '1px solid rgba(239,68,68,0.45)',
+  background: 'rgba(239,68,68,0.12)',
+  color: '#ef4444',
+}
 
 export default function ExplorePage({
   restaurants,
@@ -11,6 +32,8 @@ export default function ExplorePage({
   onSelectRestaurant,
   favorites,
   onToggleFavorite,
+  onEditRestaurant,
+  onDeleteRestaurant,
   initialQuery = '',
   initialCategory = 'Semua',
 }) {
@@ -162,12 +185,39 @@ export default function ExplorePage({
               <div className="explore-card-info">
                 <div className="explore-card-top">
                   <h3 className="explore-card-name">{resto.name}</h3>
-                  <div className="explore-card-fav">
-                    <FavoriteButton
-                      isFavorited={isFav}
-                      onToggle={() => onToggleFavorite(resto)}
-                      size={18}
-                    />
+                  <div
+                    style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {onEditRestaurant && (
+                      <button
+                        type="button"
+                        style={iconBtn}
+                        title="Edit tempat makan"
+                        aria-label={`Edit ${resto.name}`}
+                        onClick={() => onEditRestaurant(resto)}
+                      >
+                        <Pencil size={15} />
+                      </button>
+                    )}
+                    {onDeleteRestaurant && (
+                      <button
+                        type="button"
+                        style={iconBtnDanger}
+                        title="Hapus tempat makan"
+                        aria-label={`Hapus ${resto.name}`}
+                        onClick={() => onDeleteRestaurant(resto)}
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    )}
+                    <div className="explore-card-fav">
+                      <FavoriteButton
+                        isFavorited={isFav}
+                        onToggle={() => onToggleFavorite(resto)}
+                        size={18}
+                      />
+                    </div>
                   </div>
                 </div>
 

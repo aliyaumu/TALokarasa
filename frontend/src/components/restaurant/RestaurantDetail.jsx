@@ -16,7 +16,9 @@ import {
   Pencil,
   Trash2,
 } from 'lucide-react'
-import { useReviews, useCreateReview } from '../../hooks/useReviews'
+import { useReviews, useCreateReview, useDeleteReview } from '../../hooks/useReviews'
+import reviewService from '../../services/reviewService'
+import ConfirmModal from '../modals/ConfirmModal'
 import { formatRupiah, calculateAverageRating } from '../../utils/helpers'
 
 export default function RestaurantDetail({
@@ -36,6 +38,8 @@ export default function RestaurantDetail({
   // Reviews
   const { reviews, loading: reviewsLoading, refetch: refetchReviews } = useReviews(restaurant.id)
   const { createReview, loading: submitting } = useCreateReview()
+  const { deleteReview, loading: deletingReview } = useDeleteReview()
+  const [reviewToDelete, setReviewToDelete] = useState(null)
 
   const [rating, setRating] = useState(5)
   const [comment, setComment] = useState('')
@@ -76,6 +80,19 @@ export default function RestaurantDetail({
     } else {
       setReviewMsg({ text: 'Gagal mengirim ulasan.', type: 'error' })
     }
+  }
+
+  const handleConfirmDeleteReview = async () => {
+    if (!reviewToDelete) return
+    const res = await deleteReview(reviewToDelete.id)
+    setReviewToDelete(null)
+    if (res.ok) {
+      setReviewMsg({ text: 'Ulasan berhasil dihapus.', type: 'success' })
+      refetchReviews()
+    } else {
+      setReviewMsg({ text: res.message || 'Gagal menghapus ulasan.', type: 'error' })
+    }
+    setTimeout(() => setReviewMsg({ text: '', type: '' }), 4000)
   }
 
   const handleShare = async () => {
@@ -404,6 +421,16 @@ export default function RestaurantDetail({
                     </div>
                   </div>
                   <p className="review-body-text">{rev.comment}</p>
+                  {reviewService.isMine(rev.id) && (
+                    <button
+                      type="button"
+                      className="btn btn--outline btn--sm"
+                      style={{ marginTop: 8, color: '#ef4444', borderColor: 'rgba(239,68,68,0.45)' }}
+                      onClick={() => setReviewToDelete(rev)}
+                    >
+                      <Trash2 size={13} /> Hapus Ulasan
+                    </button>
+                  )}
                 </div>
               ))
             ) : (
@@ -412,6 +439,18 @@ export default function RestaurantDetail({
           </div>
         </section>
       </div>
+
+      {/* Konfirmasi hapus ulasan */}
+      <ConfirmModal
+        open={Boolean(reviewToDelete)}
+        title="Hapus Ulasan"
+        message="Ulasan Anda akan dihapus permanen. Lanjutkan?"
+        confirmLabel="Hapus Ulasan"
+        danger
+        loading={deletingReview}
+        onConfirm={handleConfirmDeleteReview}
+        onCancel={() => setReviewToDelete(null)}
+      />
     </div>
   )
 }

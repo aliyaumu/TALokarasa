@@ -1,5 +1,33 @@
 import { apiClient } from '../config/api'
 
+// ID ulasan yang ditulis dari perangkat ini (hanya ini yang boleh dihapus)
+const MY_REVIEWS_KEY = 'lokarasa_my_reviews'
+
+const readMine = () => {
+  try {
+    const raw = JSON.parse(localStorage.getItem(MY_REVIEWS_KEY))
+    return Array.isArray(raw) ? raw : []
+  } catch {
+    return []
+  }
+}
+
+const writeMine = (ids) => {
+  try {
+    localStorage.setItem(MY_REVIEWS_KEY, JSON.stringify(ids))
+  } catch {
+    /* penyimpanan penuh / diblokir: abaikan */
+  }
+}
+
+const rememberMine = (id) => {
+  if (id == null) return
+  const ids = readMine()
+  if (!ids.includes(String(id))) writeMine([...ids, String(id)])
+}
+
+const forgetMine = (id) => writeMine(readMine().filter((x) => x !== String(id)))
+
 // In-memory fallback reviews (Semarang Edition)
 let localReviews = [
   {
@@ -82,6 +110,7 @@ class ReviewService {
   async createReview(payload) {
     try {
       const data = await apiClient.post('/api/reviews', payload)
+      rememberMine(data?.id)
       return { success: true, data }
     } catch {
       const newReview = {
@@ -93,7 +122,34 @@ class ReviewService {
         created_at: new Date().toISOString(),
       }
       localReviews.unshift(newReview)
+      rememberMine(newReview.id)
       return { success: true, data: newReview, isLocalFallback: true }
+    }
+  }
+
+  // Apakah ulasan ini ditulis dari perangkat ini?
+  isMine(id) {
+    return readMine().includes(String(id))
+  }
+
+  async deleteReview(id) {
+    // Ulasan lokal (dibuat saat offline / data contoh) tidak ada di server
+    if (String(id).startsWith('rev-')) {
+      localReviews = localReviews.filter((r) => String(r.id) !== String(id))
+      forgetMine(id)
+      return { success: true, isLocalFallback: true }
+    }
+    try {
+      await apiClient.delete(`/api/reviews/${id}`)
+      forgetMine(id)
+      return { success: true }
+    } catch (err) {
+      // Server menjawab dengan error (404/500, dll): jangan pura-pura berhasil
+      if (err?.status) throw new Error(err.message || 'Gagal menghapus ulasan')
+      // Server tidak terjangkau: hapus dari cache lokal saja
+      localReviews = localReviews.filter((r) => String(r.id) !== String(id))
+      forgetMine(id)
+      return { success: true, isLocalFallback: true }
     }
   }
 }
