@@ -105,6 +105,10 @@ export default function App() {
 
   const handleProfileUpdate = (updatedProfile) => {
     setCurrentUser(updatedProfile)
+    // Setelah keluar, data pribadi (favorit, dll) sudah dihapus -> segarkan tampilan
+    if (updatedProfile && updatedProfile.isLoggedIn === false) {
+      refetchFavorites()
+    }
   }
 
   // Confirm Delete

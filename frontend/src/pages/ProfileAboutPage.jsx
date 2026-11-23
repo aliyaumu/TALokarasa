@@ -24,6 +24,7 @@ import {
   RotateCcw,
 } from 'lucide-react'
 import userService from '../services/userService'
+import ConfirmModal from '../components/modals/ConfirmModal'
 
 const DEFAULT_NAME = 'Aliya Umu'
 const MAX_NAME = 30
@@ -94,6 +95,7 @@ export default function ProfileAboutPage({
   const [editAvatar, setEditAvatar] = useState(userProfile?.avatar || null)
   const [nameError, setNameError] = useState('')
   const [feedback, setFeedback] = useState('')
+  const [confirmLogout, setConfirmLogout] = useState(false)
 
   useEffect(() => {
     if (userProfile) {
@@ -170,7 +172,8 @@ export default function ProfileAboutPage({
   }
 
   const handleLogout = () => {
-    // logoutUser mengembalikan profil Tamu yang baru (nama, bio, dan foto ikut direset)
+    setConfirmLogout(false)
+    // logoutUser menghapus data pribadi & mengembalikan profil Tamu yang baru
     const res = userService.logoutUser()
     if (onProfileUpdate) {
       onProfileUpdate(res?.data || { ...userProfile, isLoggedIn: false })
@@ -786,7 +789,7 @@ export default function ProfileAboutPage({
           <button
             type="button"
             className="settings-auth-btn settings-auth-btn--logout"
-            onClick={handleLogout}
+            onClick={() => setConfirmLogout(true)}
           >
             <div className="settings-icon-box auth-icon-box--logout">
               <LogOut size={18} />
@@ -807,6 +810,16 @@ export default function ProfileAboutPage({
         )}
       </div>
 
+      {/* Konfirmasi keluar (menghapus data di perangkat ini) */}
+      <ConfirmModal
+        open={confirmLogout}
+        title="Keluar dari Akun"
+        message="Semua data di perangkat ini akan dihapus: profil, favorit, dan draft formulir. Lanjutkan keluar?"
+        confirmLabel="Ya, Keluar"
+        danger
+        onConfirm={handleLogout}
+        onCancel={() => setConfirmLogout(false)}
+      />
     </div>
   )
 }

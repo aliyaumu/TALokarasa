@@ -5,13 +5,12 @@
 // Alur akun:
 //  - Tamu (belum masuk)  -> profil "Tamu", tanpa foto/bio.
 //  - Masuk / Daftar      -> profil akun aktif (isLoggedIn: true).
-//  - Keluar              -> profil akun DISIMPAN sebagai cadangan, tampilan kembali
-//                           menjadi Tamu. Saat masuk lagi dengan email yang sama,
-//                           nama, bio, dan fotonya dipulihkan.
+//  - Keluar              -> SEMUA data pribadi di perangkat dihapus (profil, favorit,
+//                           draft formulir, penanda ulasan, preferensi) dan tampilan
+//                           kembali menjadi Tamu.
 // ---------------------------------------------------------------------------
 
 const USER_PROFILE_KEY = 'lokarasa_user_profile'
-const USER_ACCOUNT_KEY = 'lokarasa_user_account' // cadangan profil akun saat keluar
 const USER_ID_KEY = 'lokarasa_user_id'
 
 // Akun demo: email -> nama yang dipakai saat masuk pertama kali
@@ -69,20 +68,27 @@ export const saveUserProfile = (profile) => {
   }
 }
 
-const readSavedAccount = () => {
-  try {
-    const raw = localStorage.getItem(USER_ACCOUNT_KEY)
-    return raw ? JSON.parse(raw) : null
-  } catch {
-    return null
-  }
-}
+// Data pribadi yang dihapus saat keluar (ID perangkat sengaja dipertahankan)
+const PERSONAL_KEYS = [
+  'lokarasa_favorites',   // daftar favorit
+  'lokarasa_my_reviews',  // penanda ulasan milik pengguna
+  'lokarasa_radius',      // preferensi radius
+  'lokarasa_price',       // preferensi harga
+]
+const PERSONAL_PREFIXES = ['lokarasa_draft_'] // draft formulir tambah/edit
 
-const writeSavedAccount = (profile) => {
+export const clearPersonalData = () => {
   try {
-    localStorage.setItem(USER_ACCOUNT_KEY, JSON.stringify(profile))
-  } catch {
-    /* penyimpanan penuh: abaikan */
+    const stale = []
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i)
+      if (k && PERSONAL_PREFIXES.some((p) => k.startsWith(p))) stale.push(k)
+    }
+    stale.forEach((k) => localStorage.removeItem(k))
+    PERSONAL_KEYS.forEach((k) => localStorage.removeItem(k))
+    return { success: true }
+  } catch (err) {
+    return { success: false, message: err.message }
   }
 }
 
@@ -97,14 +103,6 @@ export const loginUser = async (email, password) => {
 
   const cleanEmail = email.trim()
   const key = cleanEmail.toLowerCase()
-
-  // Email yang sama dengan akun terakhir -> pulihkan profilnya
-  const saved = readSavedAccount()
-  if (saved && String(saved.email || '').toLowerCase() === key) {
-    const restored = { ...saved, isLoggedIn: true }
-    saveUserProfile(restored)
-    return { success: true, data: restored }
-  }
 
   // Akun baru di perangkat ini
   const namePart = cleanEmail.split('@')[0]
@@ -148,12 +146,8 @@ export const registerUser = async (name, email, password) => {
 }
 
 export const logoutUser = () => {
-  const current = getUserProfile()
-
-  // Simpan akun yang sedang aktif agar bisa dipulihkan saat masuk lagi
-  if (current.isLoggedIn) writeSavedAccount(current)
-
-  // Tampilan kembali menjadi Tamu
+  // Hapus semua data pribadi, lalu kembali menjadi Tamu
+  clearPersonalData()
   const res = saveUserProfile(buildGuestProfile())
   return { success: res.success, data: res.data }
 }
@@ -166,4 +160,5 @@ export default {
   loginUser,
   registerUser,
   logoutUser,
+  clearPersonalData,
 }
