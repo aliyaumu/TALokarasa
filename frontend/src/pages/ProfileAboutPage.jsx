@@ -170,9 +170,10 @@ export default function ProfileAboutPage({
   }
 
   const handleLogout = () => {
-    userService.logoutUser()
+    // logoutUser mengembalikan profil Tamu yang baru (nama, bio, dan foto ikut direset)
+    const res = userService.logoutUser()
     if (onProfileUpdate) {
-      onProfileUpdate({ ...userProfile, isLoggedIn: false })
+      onProfileUpdate(res?.data || { ...userProfile, isLoggedIn: false })
     }
     showToast('Berhasil keluar dari akun.')
   }

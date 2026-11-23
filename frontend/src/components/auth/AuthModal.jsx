@@ -1,49 +1,68 @@
-import { useState } from 'react'
-import { X, Lock, Mail, User, ArrowRight, CheckCircle2, AlertCircle, Sparkles } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import {
+  X, Lock, Mail, User, Eye, EyeOff, ArrowRight, CheckCircle2, AlertCircle, Sparkles,
+} from 'lucide-react'
+import Popup from '../modals/Popup'
 import { loginUser, registerUser } from '../../services/userService'
 
+/**
+ * AuthModal — popup Masuk / Daftar.
+ * Menerima `open` maupun `isOpen` supaya tidak salah nama prop lagi.
+ */
 export default function AuthModal({ open, isOpen, onClose, onSuccess }) {
-  // Terima `open` maupun `isOpen` supaya tidak salah nama prop lagi
-  const visible = open ?? isOpen
+  const visible = Boolean(open ?? isOpen)
+
   const [tab, setTab] = useState('login') // 'login' | 'register'
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
   const [successMsg, setSuccessMsg] = useState('')
 
-  if (!visible) return null
+  // Setiap kali popup dibuka: bersihkan pesan & kata sandi lama
+  useEffect(() => {
+    if (visible) {
+      setErrorMsg('')
+      setSuccessMsg('')
+      setPassword('')
+      setShowPassword(false)
+      setLoading(false)
+    }
+  }, [visible])
+
+  const switchTab = (next) => {
+    setTab(next)
+    setErrorMsg('')
+    setSuccessMsg('')
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    if (loading) return
     setErrorMsg('')
     setSuccessMsg('')
     setLoading(true)
 
     try {
-      if (tab === 'login') {
-        const res = await loginUser(email, password)
-        if (res.success) {
-          setSuccessMsg('Login berhasil! Selamat datang kembali.')
-          setTimeout(() => {
-            if (onSuccess) onSuccess(res.data)
-            onClose()
-          }, 800)
-        } else {
-          setErrorMsg(res.message || 'Gagal masuk akun.')
-        }
+      const res =
+        tab === 'login'
+          ? await loginUser(email.trim(), password)
+          : await registerUser(name, email, password)
+
+      if (res.success) {
+        setSuccessMsg(
+          tab === 'login'
+            ? 'Login berhasil! Selamat datang kembali.'
+            : 'Pendaftaran berhasil! Akun Anda telah siap.'
+        )
+        setTimeout(() => {
+          if (onSuccess) onSuccess(res.data)
+          if (onClose) onClose()
+        }, 700)
       } else {
-        const res = await registerUser(name, email, password)
-        if (res.success) {
-          setSuccessMsg('Pendaftaran berhasil! Akun Anda telah siap.')
-          setTimeout(() => {
-            if (onSuccess) onSuccess(res.data)
-            onClose()
-          }, 800)
-        } else {
-          setErrorMsg(res.message || 'Gagal mendaftar akun.')
-        }
+        setErrorMsg(res.message || (tab === 'login' ? 'Gagal masuk akun.' : 'Gagal mendaftar akun.'))
       }
     } catch {
       setErrorMsg('Terjadi kendala saat menghubungkan akun.')
@@ -56,137 +75,138 @@ export default function AuthModal({ open, isOpen, onClose, onSuccess }) {
     setEmail('aliya@lokarasa.id')
     setPassword('semarang123')
     setName('Aliya Umu')
+    setErrorMsg('')
   }
 
   return (
-    <div className="modal-backdrop" onClick={onClose}>
-      <div className="auth-modal-card" onClick={(e) => e.stopPropagation()}>
-        {/* Close Button */}
-        <button type="button" className="auth-close-btn" onClick={onClose} aria-label="Tutup">
-          <X size={20} />
+    <Popup open={visible} onClose={onClose} className="lk-auth" labelledBy="lk-auth-title">
+      <button type="button" className="lk-popup-close" onClick={onClose} aria-label="Tutup">
+        <X size={18} />
+      </button>
+
+      <div className="lk-auth-head">
+        <div className="lk-popup-icon">
+          <Sparkles size={26} />
+        </div>
+        <h3 id="lk-auth-title" className="lk-popup-title">
+          {tab === 'login' ? 'Masuk ke Lokarasa' : 'Daftar Akun Baru'}
+        </h3>
+        <p className="lk-popup-message">
+          {tab === 'login'
+            ? 'Akses ulasan, simpan tempat makan favorit, dan jelajahi kuliner Semarang.'
+            : 'Bergabunglah bersama komunitas pecinta kuliner khas Semarang.'}
+        </p>
+      </div>
+
+      <div className="lk-tabs" role="tablist">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={tab === 'login'}
+          className={`lk-tab ${tab === 'login' ? 'lk-tab--active' : ''}`}
+          onClick={() => switchTab('login')}
+        >
+          Masuk
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={tab === 'register'}
+          className={`lk-tab ${tab === 'register' ? 'lk-tab--active' : ''}`}
+          onClick={() => switchTab('register')}
+        >
+          Daftar
+        </button>
+      </div>
+
+      {errorMsg && (
+        <div className="lk-toast lk-toast--error" role="alert">
+          <AlertCircle size={16} /> <span>{errorMsg}</span>
+        </div>
+      )}
+      {successMsg && (
+        <div className="lk-toast lk-toast--success" role="status">
+          <CheckCircle2 size={16} /> <span>{successMsg}</span>
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit}>
+        {tab === 'register' && (
+          <div className="lk-field">
+            <label className="lk-label" htmlFor="lk-auth-name">Nama Lengkap</label>
+            <div className="lk-input-wrap">
+              <User size={18} className="lk-input-icon" />
+              <input
+                id="lk-auth-name"
+                type="text"
+                className="lk-input"
+                placeholder="Contoh: Aliya Umu"
+                autoComplete="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
+            </div>
+          </div>
+        )}
+
+        <div className="lk-field">
+          <label className="lk-label" htmlFor="lk-auth-email">Alamat Email</label>
+          <div className="lk-input-wrap">
+            <Mail size={18} className="lk-input-icon" />
+            <input
+              id="lk-auth-email"
+              type="email"
+              className="lk-input"
+              placeholder="nama@email.com"
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+        </div>
+
+        <div className="lk-field">
+          <label className="lk-label" htmlFor="lk-auth-password">Kata Sandi</label>
+          <div className="lk-input-wrap">
+            <Lock size={18} className="lk-input-icon" />
+            <input
+              id="lk-auth-password"
+              type={showPassword ? 'text' : 'password'}
+              className="lk-input"
+              placeholder="Minimal 6 karakter"
+              autoComplete={tab === 'login' ? 'current-password' : 'new-password'}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+            <button
+              type="button"
+              className="lk-eye"
+              onClick={() => setShowPassword((v) => !v)}
+              aria-label={showPassword ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}
+            >
+              {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" className="lk-btn lk-btn--primary lk-submit" disabled={loading}>
+          {loading ? (
+            <span>Memproses…</span>
+          ) : (
+            <>
+              <span>{tab === 'login' ? 'Masuk Sekarang' : 'Buat Akun'}</span>
+              <ArrowRight size={18} />
+            </>
+          )}
         </button>
 
-        {/* Brand Header */}
-        <div className="auth-header">
-          <div className="auth-logo-badge">
-            <Sparkles size={24} color="#f97316" />
-          </div>
-          <h2 className="auth-title">
-            {tab === 'login' ? 'Masuk ke Lokarasa' : 'Daftar Akun Baru'}
-          </h2>
-          <p className="auth-subtitle">
-            {tab === 'login'
-              ? 'Akses ulasan, simpan tempat makan favorit, dan jelajahi kuliner Semarang.'
-              : 'Bergabunglah bersama komunitas pecinta kuliner khas Semarang.'}
-          </p>
-        </div>
-
-        {/* Tab Switcher */}
-        <div className="auth-tab-bar">
-          <button
-            type="button"
-            className={`auth-tab-btn ${tab === 'login' ? 'auth-tab-btn--active' : ''}`}
-            onClick={() => { setTab('login'); setErrorMsg(''); setSuccessMsg(''); }}
-          >
-            Masuk
-          </button>
-          <button
-            type="button"
-            className={`auth-tab-btn ${tab === 'register' ? 'auth-tab-btn--active' : ''}`}
-            onClick={() => { setTab('register'); setErrorMsg(''); setSuccessMsg(''); }}
-          >
-            Daftar
-          </button>
-        </div>
-
-        {/* Feedback Messages */}
-        {errorMsg && (
-          <div className="auth-toast auth-toast--error">
-            <AlertCircle size={16} />
-            <span>{errorMsg}</span>
-          </div>
-        )}
-        {successMsg && (
-          <div className="auth-toast auth-toast--success">
-            <CheckCircle2 size={16} />
-            <span>{successMsg}</span>
-          </div>
-        )}
-
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="auth-form">
-          {tab === 'register' && (
-            <div className="auth-input-group">
-              <label className="auth-label">Nama Lengkap</label>
-              <div className="auth-input-wrapper">
-                <User size={18} className="auth-input-icon" />
-                <input
-                  type="text"
-                  placeholder="Contoh: Aliya Umu"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="auth-input"
-                  required
-                />
-              </div>
-            </div>
-          )}
-
-          <div className="auth-input-group">
-            <label className="auth-label">Alamat Email</label>
-            <div className="auth-input-wrapper">
-              <Mail size={18} className="auth-input-icon" />
-              <input
-                type="email"
-                placeholder="nama@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="auth-input"
-                required
-              />
-            </div>
-          </div>
-
-          <div className="auth-input-group">
-            <label className="auth-label">Kata Sandi</label>
-            <div className="auth-input-wrapper">
-              <Lock size={18} className="auth-input-icon" />
-              <input
-                type="password"
-                placeholder="Minimal 6 karakter"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="auth-input"
-                required
-              />
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            className="btn btn--primary auth-submit-btn"
-            disabled={loading}
-          >
-            {loading ? (
-              <span>Memproses…</span>
-            ) : (
-              <>
-                <span>{tab === 'login' ? 'Masuk Sekarang' : 'Buat Akun'}</span>
-                <ArrowRight size={18} />
-              </>
-            )}
-          </button>
-
-          {/* Quick Demo Button */}
-          <button
-            type="button"
-            className="auth-demo-btn"
-            onClick={handleQuickDemo}
-          >
-            ⚡ Isi Akun Demo Cepat (Aliya)
-          </button>
-        </form>
-      </div>
-    </div>
+        <button type="button" className="lk-demo" onClick={handleQuickDemo}>
+          ⚡ Isi Akun Demo Cepat (Aliya)
+        </button>
+      </form>
+    </Popup>
   )
 }

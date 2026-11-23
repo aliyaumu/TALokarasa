@@ -1,5 +1,10 @@
-import { AlertCircle } from 'lucide-react'
+import { Trash2, AlertTriangle } from 'lucide-react'
+import Popup from './Popup'
 
+/**
+ * ConfirmModal — popup konfirmasi (hapus, dll).
+ * Props sama seperti versi lama, jadi semua pemanggil tidak perlu diubah.
+ */
 export default function ConfirmModal({
   open,
   title,
@@ -13,45 +18,39 @@ export default function ConfirmModal({
   onConfirm,
   onCancel,
 }) {
-  if (!open) return null
-
   const finalConfirmLabel = confirmText || confirmLabel
   const finalCancelLabel = cancelText || cancelLabel
 
   return (
-    <div className="modal-backdrop" onClick={onCancel}>
-      <div
-        className="modal-box"
-        role="dialog"
-        aria-modal="true"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="modal-header">
-          <div className={`modal-icon-badge ${danger ? 'modal-icon-badge--danger' : ''}`}>
-            <AlertCircle size={24} />
-          </div>
-          <h3 className="modal-title">{title}</h3>
-        </div>
-        <p className="modal-message">{message}</p>
-        <div className="modal-actions">
-          <button
-            type="button"
-            className="btn btn--outline"
-            onClick={onCancel}
-            disabled={loading}
-          >
-            {finalCancelLabel}
-          </button>
-          <button
-            type="button"
-            className={`btn ${danger ? 'btn--danger' : 'btn--primary'}`}
-            onClick={onConfirm}
-            disabled={loading}
-          >
-            {loading ? 'Memproses…' : finalConfirmLabel}
-          </button>
-        </div>
+    <Popup
+      open={Boolean(open)}
+      onClose={loading ? undefined : onCancel}
+      labelledBy="lk-confirm-title"
+    >
+      <div className={`lk-popup-icon ${danger ? 'lk-popup-icon--danger' : ''}`}>
+        {danger ? <Trash2 size={26} /> : <AlertTriangle size={26} />}
       </div>
-    </div>
+      <h3 id="lk-confirm-title" className="lk-popup-title">{title}</h3>
+      <p className="lk-popup-message">{message}</p>
+
+      <div className="lk-popup-actions">
+        <button
+          type="button"
+          className="lk-btn lk-btn--ghost"
+          onClick={onCancel}
+          disabled={loading}
+        >
+          {finalCancelLabel}
+        </button>
+        <button
+          type="button"
+          className={`lk-btn ${danger ? 'lk-btn--danger' : 'lk-btn--primary'}`}
+          onClick={onConfirm}
+          disabled={loading}
+        >
+          {loading ? 'Memproses…' : finalConfirmLabel}
+        </button>
+      </div>
+    </Popup>
   )
 }

@@ -1,11 +1,23 @@
 // ---------------------------------------------------------------------------
 // userService.js — Identitas Pengguna & Fitur Autentikasi (Login/Register)
-// Mendukung penyimpanan profil lokal dan integrasi Supabase Auth
+// Mendukung penyimpanan profil lokal (localStorage).
+//
+// Alur akun:
+//  - Tamu (belum masuk)  -> profil "Tamu", tanpa foto/bio.
+//  - Masuk / Daftar      -> profil akun aktif (isLoggedIn: true).
+//  - Keluar              -> profil akun DISIMPAN sebagai cadangan, tampilan kembali
+//                           menjadi Tamu. Saat masuk lagi dengan email yang sama,
+//                           nama, bio, dan fotonya dipulihkan.
 // ---------------------------------------------------------------------------
 
-const USER_SESSION_KEY = 'lokarasa_user_session'
 const USER_PROFILE_KEY = 'lokarasa_user_profile'
+const USER_ACCOUNT_KEY = 'lokarasa_user_account' // cadangan profil akun saat keluar
 const USER_ID_KEY = 'lokarasa_user_id'
+
+// Akun demo: email -> nama yang dipakai saat masuk pertama kali
+const DEMO_NAMES = {
+  'aliya@lokarasa.id': 'Aliya Umu',
+}
 
 export const getUserIdentifier = () => {
   try {
@@ -20,6 +32,18 @@ export const getUserIdentifier = () => {
   }
 }
 
+const buildGuestProfile = () => ({
+  name: 'Tamu',
+  email: '',
+  role: 'Kuliner Explorer Semarang',
+  bio: '',
+  avatar: null,
+  favoriteCity: 'Semarang',
+  userId: getUserIdentifier(),
+  isLoggedIn: false,
+  joinedDate: '',
+})
+
 export const getUserProfile = () => {
   try {
     const raw = localStorage.getItem(USER_PROFILE_KEY)
@@ -27,18 +51,7 @@ export const getUserProfile = () => {
   } catch {
     /* fallback */
   }
-
-  return {
-    name: 'Saraswati Putri',
-    email: 'saras@lokarasa.id',
-    role: 'Kuliner Explorer Semarang',
-    bio: 'Pencinta kuliner Semarang: Kedai Tinari, Bakmi Serangkai, dan pemburu hidden gem kuliner Tembalang & Banyumanik!',
-    avatar: null,
-    favoriteCity: 'Semarang',
-    userId: getUserIdentifier(),
-    isLoggedIn: true,
-    joinedDate: 'November 2026',
-  }
+  return buildGuestProfile()
 }
 
 export const getCurrentUser = getUserProfile
@@ -56,8 +69,25 @@ export const saveUserProfile = (profile) => {
   }
 }
 
+const readSavedAccount = () => {
+  try {
+    const raw = localStorage.getItem(USER_ACCOUNT_KEY)
+    return raw ? JSON.parse(raw) : null
+  } catch {
+    return null
+  }
+}
+
+const writeSavedAccount = (profile) => {
+  try {
+    localStorage.setItem(USER_ACCOUNT_KEY, JSON.stringify(profile))
+  } catch {
+    /* penyimpanan penuh: abaikan */
+  }
+}
+
 export const loginUser = async (email, password) => {
-  // Simple auth simulation / local persistence
+  // Simulasi autentikasi (tersimpan lokal)
   if (!email || !password) {
     return { success: false, message: 'Email dan kata sandi wajib diisi.' }
   }
@@ -65,19 +95,32 @@ export const loginUser = async (email, password) => {
     return { success: false, message: 'Kata sandi minimal 6 karakter.' }
   }
 
-  const namePart = email.split('@')[0]
+  const cleanEmail = email.trim()
+  const key = cleanEmail.toLowerCase()
+
+  // Email yang sama dengan akun terakhir -> pulihkan profilnya
+  const saved = readSavedAccount()
+  if (saved && String(saved.email || '').toLowerCase() === key) {
+    const restored = { ...saved, isLoggedIn: true }
+    saveUserProfile(restored)
+    return { success: true, data: restored }
+  }
+
+  // Akun baru di perangkat ini
+  const namePart = cleanEmail.split('@')[0]
   const formattedName = namePart.charAt(0).toUpperCase() + namePart.slice(1)
 
-  const currentProfile = getUserProfile()
-  const updatedProfile = {
-    ...currentProfile,
-    email,
-    name: currentProfile.name || formattedName,
+  const profile = {
+    ...buildGuestProfile(),
+    name: DEMO_NAMES[key] || formattedName,
+    email: cleanEmail,
+    bio: 'Penjelajah cita rasa kuliner khas Kota Semarang.',
+    joinedDate: new Date().toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }),
     isLoggedIn: true,
   }
 
-  saveUserProfile(updatedProfile)
-  return { success: true, data: updatedProfile }
+  saveUserProfile(profile)
+  return { success: true, data: profile }
 }
 
 export const registerUser = async (name, email, password) => {
@@ -106,12 +149,13 @@ export const registerUser = async (name, email, password) => {
 
 export const logoutUser = () => {
   const current = getUserProfile()
-  const loggedOut = {
-    ...current,
-    isLoggedIn: false,
-  }
-  saveUserProfile(loggedOut)
-  return { success: true }
+
+  // Simpan akun yang sedang aktif agar bisa dipulihkan saat masuk lagi
+  if (current.isLoggedIn) writeSavedAccount(current)
+
+  // Tampilan kembali menjadi Tamu
+  const res = saveUserProfile(buildGuestProfile())
+  return { success: res.success, data: res.data }
 }
 
 export default {
