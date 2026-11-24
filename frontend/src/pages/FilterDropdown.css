@@ -1,0 +1,79 @@
+/* FilterDropdown.css — filter dropdown di kolom pencarian (prefix lk-) */
+.lk-filter-btn {
+  position: relative;
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 10px;
+  background: rgba(249, 115, 22, 0.15);
+  color: #f97316;
+  cursor: pointer;
+  padding: 0;
+}
+.lk-filter-btn--on { background: #f97316; color: #fff; }
+.lk-filter-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+}
+.lk-filter-panel {
+  margin: 10px 0 4px;
+  padding: 14px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  border-radius: 14px;
+  background: #1c1c21;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.lk-filter-field { display: flex; flex-direction: column; gap: 6px; }
+.lk-filter-field label { font-size: 12px; font-weight: 600; color: #a1a1aa; }
+.lk-select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: #121216;
+  color: #f4f4f5;
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+.lk-select:focus { outline: 2px solid #f97316; outline-offset: 1px; }
+.lk-filter-reset {
+  grid-column: 1 / -1;
+  justify-self: end;
+  border: 0;
+  background: transparent;
+  color: #f97316;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+/* Home: dropdown melayang di bawah kolom pencarian */
+.lk-filter-anchor { position: relative; }
+.lk-filter-panel--float {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  z-index: 30;
+  width: min(280px, 90vw);
+  grid-template-columns: 1fr;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+}

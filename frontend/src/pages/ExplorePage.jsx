@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
-import { Search, Star, MapPin, X, UtensilsCrossed, Loader, AlertTriangle, Pencil, Trash2 } from 'lucide-react'
+import { Search, SlidersHorizontal, Star, MapPin, X, UtensilsCrossed, Loader, AlertTriangle, Pencil, Trash2 } from 'lucide-react'
 import FavoriteButton from '../components/common/FavoriteButton'
+import './FilterDropdown.css'
 import { matchesSearch, matchesCategory, sortRestaurants, formatRupiah } from '../utils/helpers'
 
 // Gaya tombol ikon Edit / Hapus pada baris kartu
@@ -41,6 +42,24 @@ export default function ExplorePage({
   const [activeCategory, setActiveCategory] = useState(initialCategory)
   const [sortKey, setSortKey] = useState('rating')
   const [sortOrder, setSortOrder] = useState('desc')
+  const [showFilters, setShowFilters] = useState(initialCategory !== 'Semua')
+  const [priceFilter, setPriceFilter] = useState('all')
+  const [ratingFilter, setRatingFilter] = useState('0')
+
+  const priceOk = (item) => {
+    if (priceFilter === 'all') return true
+    const p = Number(item?.avg_price) || 0
+    if (priceFilter === 'low') return p > 0 && p < 20000
+    if (priceFilter === 'mid') return p >= 20000 && p <= 50000
+    return p > 50000
+  }
+  const activeFilterCount =
+    (activeCategory !== 'Semua' ? 1 : 0) + (priceFilter !== 'all' ? 1 : 0) + (ratingFilter !== '0' ? 1 : 0)
+  const resetFilters = () => {
+    setActiveCategory('Semua')
+    setPriceFilter('all')
+    setRatingFilter('0')
+  }
 
   const categories = [
     'Semua',
@@ -60,10 +79,14 @@ export default function ExplorePage({
 
   const filteredRestaurants = useMemo(() => {
     const list = restaurants.filter(
-      (item) => matchesSearch(item, search) && matchesCategory(item, activeCategory)
+      (item) =>
+        matchesSearch(item, search) &&
+        matchesCategory(item, activeCategory) &&
+        priceOk(item) &&
+        Number(item?.rating || 0) >= Number(ratingFilter)
     )
     return sortRestaurants(list, sortKey, sortOrder)
-  }, [restaurants, search, activeCategory, sortKey, sortOrder])
+  }, [restaurants, search, activeCategory, priceFilter, ratingFilter, sortKey, sortOrder])
 
   return (
     <div className="explore-page-wrap">
@@ -87,24 +110,51 @@ export default function ExplorePage({
               <X size={16} />
             </button>
           )}
+          <button
+            type="button"
+            className={`lk-filter-btn ${showFilters ? 'lk-filter-btn--on' : ''}`}
+            onClick={() => setShowFilters((v) => !v)}
+            aria-label="Filter"
+            aria-expanded={showFilters}
+          >
+            <SlidersHorizontal size={17} />
+            {activeFilterCount > 0 && <span className="lk-filter-badge">{activeFilterCount}</span>}
+          </button>
         </div>
-      </div>
 
-      {/* Category Pills (Horizontal Scroll) */}
-      <div className="explore-pill-bar">
-        {categories.map((cat) => {
-          const isActive = activeCategory === cat
-          return (
-            <button
-              key={cat}
-              type="button"
-              className={`explore-pill ${isActive ? 'explore-pill--active' : ''}`}
-              onClick={() => setActiveCategory(cat)}
-            >
-              {cat}
-            </button>
-          )
-        })}
+        {showFilters && (
+          <div className="lk-filter-panel">
+            <div className="lk-filter-field">
+              <label htmlFor="flt-cat">Kategori</label>
+              <select id="flt-cat" className="lk-select" value={activeCategory} onChange={(e) => setActiveCategory(e.target.value)}>
+                {categories.map((cat) => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+              </select>
+            </div>
+            <div className="lk-filter-field">
+              <label htmlFor="flt-price">Kisaran Harga</label>
+              <select id="flt-price" className="lk-select" value={priceFilter} onChange={(e) => setPriceFilter(e.target.value)}>
+                <option value="all">Semua harga</option>
+                <option value="low">Hemat (&lt; 20 rb)</option>
+                <option value="mid">Menengah (20 - 50 rb)</option>
+                <option value="high">Mewah (&gt; 50 rb)</option>
+              </select>
+            </div>
+            <div className="lk-filter-field">
+              <label htmlFor="flt-rating">Rating Minimal</label>
+              <select id="flt-rating" className="lk-select" value={ratingFilter} onChange={(e) => setRatingFilter(e.target.value)}>
+                <option value="0">Semua rating</option>
+                <option value="3">3.0 ke atas</option>
+                <option value="4">4.0 ke atas</option>
+                <option value="4.5">4.5 ke atas</option>
+              </select>
+            </div>
+            {activeFilterCount > 0 && (
+              <button type="button" className="lk-filter-reset" onClick={resetFilters}>Reset filter</button>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Result Status */}
@@ -156,7 +206,7 @@ export default function ExplorePage({
           <button
             type="button"
             className="btn btn--primary btn--sm"
-            onClick={() => { setSearch(''); setActiveCategory('Semua'); }}
+            onClick={() => { setSearch(''); resetFilters() }}
           >
             Reset Pencarian
           </button>

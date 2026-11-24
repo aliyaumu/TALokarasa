@@ -101,11 +101,13 @@ export default function App() {
   const handleAuthSuccess = (userData) => {
     setCurrentUser(userData)
     setIsAuthOpen(false)
+    // Data akun (favorit, dll) dipulihkan saat masuk -> segarkan tampilan
+    refetchFavorites()
   }
 
   const handleProfileUpdate = (updatedProfile) => {
     setCurrentUser(updatedProfile)
-    // Setelah keluar, data pribadi (favorit, dll) sudah dihapus -> segarkan tampilan
+    // Setelah keluar, data akun disembunyikan (tersimpan) -> segarkan tampilan
     if (updatedProfile && updatedProfile.isLoggedIn === false) {
       refetchFavorites()
     }
@@ -139,7 +141,6 @@ export default function App() {
         favCount={favorites.length}
         userProfile={currentUser}
         onOpenAuth={() => setIsAuthOpen(true)}
-        isOffline={isLocal}
         onNavigateAdd={() => handleTabChange('add')}
       />
 

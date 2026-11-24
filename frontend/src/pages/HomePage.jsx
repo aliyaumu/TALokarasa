@@ -9,9 +9,67 @@ import {
   MapPin,
   Clock,
   BadgePlus,
+  Pencil,
+  Trash2,
 } from 'lucide-react'
 import FavoriteButton from '../components/common/FavoriteButton'
 import { formatRupiah, truncate } from '../utils/helpers'
+import './FilterDropdown.css'
+
+// Tombol Edit & Hapus di bawah kartu (tidak ikut memicu klik kartu / buka detail)
+function CardActions({ resto, onEdit, onDelete }) {
+  if (!onEdit && !onDelete) return null
+
+  const base = {
+    flex: 1,
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    padding: '7px 10px',
+    borderRadius: 10,
+    fontSize: 12,
+    fontWeight: 600,
+    cursor: 'pointer',
+    border: '1px solid rgba(255,255,255,0.18)',
+    background: 'rgba(255,255,255,0.06)',
+    color: 'inherit',
+  }
+  const danger = {
+    ...base,
+    border: '1px solid rgba(239,68,68,0.45)',
+    background: 'rgba(239,68,68,0.12)',
+    color: '#ef4444',
+  }
+
+  return (
+    <div
+      style={{ display: 'flex', gap: 8, marginTop: 12 }}
+      onClick={(e) => e.stopPropagation()}
+    >
+      {onEdit && (
+        <button
+          type="button"
+          style={base}
+          onClick={() => onEdit(resto)}
+          aria-label={`Edit ${resto.name}`}
+        >
+          <Pencil size={13} /> Edit
+        </button>
+      )}
+      {onDelete && (
+        <button
+          type="button"
+          style={danger}
+          onClick={() => onDelete(resto)}
+          aria-label={`Hapus ${resto.name}`}
+        >
+          <Trash2 size={13} /> Hapus
+        </button>
+      )}
+    </div>
+  )
+}
 
 export default function HomePage({
   userProfile,
@@ -19,6 +77,8 @@ export default function HomePage({
   favorites = [],
   onSelectRestaurant,
   onToggleFavorite,
+  onEditRestaurant,
+  onDeleteRestaurant,
   onNavigateExplore,
   onOpenAuth,
 }) {
@@ -60,6 +120,8 @@ export default function HomePage({
     { name: 'Cafe & Nongkrong', icon: '☕', tag: 'Cafe & Nongkrong' },
   ]
 
+  const [showFilter, setShowFilter] = useState(false)
+
   const handleSearchSubmit = (e) => {
     e.preventDefault()
     if (onNavigateExplore) onNavigateExplore(searchQuery)
@@ -91,7 +153,7 @@ export default function HomePage({
 
       {/* Search Bar matching Mockup */}
       <form onSubmit={handleSearchSubmit} className="home-search-form">
-        <div className="home-search-bar">
+        <div className="home-search-bar lk-filter-anchor">
           <Search size={18} className="home-search-icon" />
           <input
             type="search"
@@ -103,11 +165,33 @@ export default function HomePage({
           <button
             type="button"
             className="home-search-filter-btn"
-            onClick={() => onNavigateExplore && onNavigateExplore(searchQuery)}
+            onClick={() => setShowFilter((v) => !v)}
             aria-label="Filter"
+            aria-expanded={showFilter}
           >
             <SlidersHorizontal size={18} />
           </button>
+          {showFilter && (
+            <div className="lk-filter-panel lk-filter-panel--float">
+              <div className="lk-filter-field">
+                <label htmlFor="home-flt-cat">Kategori</label>
+                <select
+                  id="home-flt-cat"
+                  className="lk-select"
+                  defaultValue=""
+                  onChange={(e) => {
+                    setShowFilter(false)
+                    if (onNavigateExplore) onNavigateExplore(searchQuery, e.target.value || undefined)
+                  }}
+                >
+                  <option value="">Pilih kategori…</option>
+                  {categories.map((cat) => (
+                    <option key={cat.tag} value={cat.tag}>{cat.name}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          )}
         </div>
       </form>
 
@@ -222,6 +306,11 @@ export default function HomePage({
                         <MapPin size={11} /> {resto.city || 'Semarang'}
                       </span>
                     </div>
+                    <CardActions
+                      resto={resto}
+                      onEdit={onEditRestaurant}
+                      onDelete={onDeleteRestaurant}
+                    />
                   </div>
                 </div>
               )
@@ -284,6 +373,11 @@ export default function HomePage({
                       <MapPin size={11} /> 1.2 km
                     </span>
                   </div>
+                  <CardActions
+                    resto={resto}
+                    onEdit={onEditRestaurant}
+                    onDelete={onDeleteRestaurant}
+                  />
                 </div>
               </div>
             )
@@ -345,6 +439,11 @@ export default function HomePage({
                       <MapPin size={11} /> {resto.city || 'Semarang'}
                     </span>
                   </div>
+                  <CardActions
+                    resto={resto}
+                    onEdit={onEditRestaurant}
+                    onDelete={onDeleteRestaurant}
+                  />
                 </div>
               </div>
             )

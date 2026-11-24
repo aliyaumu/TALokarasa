@@ -222,3 +222,34 @@
 @media (prefers-reduced-motion: reduce) {
   .lk-popup-overlay, .lk-popup-card { animation: none; }
 }
+
+/* ---- Pop up besar (menu Profil: Pengaturan, FAQ, Tentang, dst.) ---- */
+.lk-popup-card.lk-sheet {
+  max-width: 560px;
+  padding: 0;
+  text-align: left;
+  max-height: calc(100vh - 32px);
+}
+.lk-popup-card.lk-sheet .sub-screen-wrapper {
+  position: static !important;
+  inset: auto !important;
+  min-height: 0 !important;
+  height: auto !important;
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  overflow: visible !important;
+}
+.lk-popup-card.lk-sheet .sub-screen-header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #1c1c21;
+  padding: 16px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.lk-popup-card.lk-sheet .sub-screen-content {
+  padding: 16px 18px 22px;
+}

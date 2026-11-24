@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react'
 import {
   User,
   Settings,
-  Bell,
   HelpCircle,
   Shield,
   FileText,
@@ -15,7 +14,7 @@ import {
   Check,
   Edit2,
   Sparkles,
-  ArrowLeft,
+  X,
   Sliders,
   Database,
   Trash2,
@@ -25,6 +24,7 @@ import {
 } from 'lucide-react'
 import userService from '../services/userService'
 import ConfirmModal from '../components/modals/ConfirmModal'
+import Popup from '../components/modals/Popup'
 
 const DEFAULT_NAME = 'Aliya Umu'
 const MAX_NAME = 30
@@ -80,7 +80,6 @@ export default function ProfileAboutPage({
   const [activeSubView, setActiveSubView] = useState(null)
 
   // Settings State
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true)
   const [searchRadius, setSearchRadius] = useState(() => Number(readPref('lokarasa_radius', 5)) || 5)
   const [defaultPriceRange, setDefaultPriceRange] = useState(() => readPref('lokarasa_price', 'Semua'))
 
@@ -91,6 +90,7 @@ export default function ProfileAboutPage({
   const fileInputRef = useRef(null)
   const [editName, setEditName] = useState(userProfile?.name || DEFAULT_NAME)
   const [editBio, setEditBio] = useState(userProfile?.bio || '')
+  const [editNim, setEditNim] = useState(userProfile?.nim || '')
   const [editCity, setEditCity] = useState(userProfile?.favoriteCity || 'Semarang')
   const [editAvatar, setEditAvatar] = useState(userProfile?.avatar || null)
   const [nameError, setNameError] = useState('')
@@ -101,6 +101,7 @@ export default function ProfileAboutPage({
     if (userProfile) {
       setEditName(userProfile.name || DEFAULT_NAME)
       setEditBio(userProfile.bio || '')
+      setEditNim(userProfile.nim || '')
       setEditCity(userProfile.favoriteCity || 'Semarang')
       setEditAvatar(userProfile.avatar || null)
     }
@@ -124,6 +125,7 @@ export default function ProfileAboutPage({
       ...userProfile,
       name,
       bio: editBio.trim(),
+      nim: editNim.trim(),
       favoriteCity: editCity.trim() || 'Semarang',
       avatar: editAvatar,
     }
@@ -139,6 +141,7 @@ export default function ProfileAboutPage({
   const handleResetProfile = () => {
     setEditName(DEFAULT_NAME)
     setEditBio('')
+    setEditNim('')
     setEditCity('Semarang')
     setEditAvatar(null)
     setNameError('')
@@ -175,6 +178,10 @@ export default function ProfileAboutPage({
     setConfirmLogout(false)
     // logoutUser menghapus data pribadi & mengembalikan profil Tamu yang baru
     const res = userService.logoutUser()
+    if (res && res.success === false) {
+      showToast(res.message || 'Gagal keluar dari akun.')
+      return
+    }
     if (onProfileUpdate) {
       onProfileUpdate(res?.data || { ...userProfile, isLoggedIn: false })
     }
@@ -186,6 +193,8 @@ export default function ProfileAboutPage({
     showToast('Cache data lokal dan draft telah dibersihkan.')
   }
 
+  // Isi pop up menu (Tentang, Privasi, Ketentuan, FAQ, Pengaturan)
+  const renderSubView = () => {
   // --------------------------------------------------------------------------
   // SUB-VIEW: TENTANG APLIKASI (Image 4 Screen 8)
   // --------------------------------------------------------------------------
@@ -197,9 +206,9 @@ export default function ProfileAboutPage({
             type="button"
             className="sub-back-btn"
             onClick={() => setActiveSubView(null)}
-            aria-label="Kembali ke profil"
+            aria-label="Tutup"
           >
-            <ArrowLeft size={18} />
+            <X size={18} />
           </button>
           <h2 className="sub-header-title">Tentang Aplikasi</h2>
         </div>
@@ -265,9 +274,9 @@ export default function ProfileAboutPage({
             type="button"
             className="sub-back-btn"
             onClick={() => setActiveSubView(null)}
-            aria-label="Kembali"
+            aria-label="Tutup"
           >
-            <ArrowLeft size={18} />
+            <X size={18} />
           </button>
           <h2 className="sub-header-title">Kebijakan Privasi</h2>
         </div>
@@ -318,9 +327,9 @@ export default function ProfileAboutPage({
             type="button"
             className="sub-back-btn"
             onClick={() => setActiveSubView(null)}
-            aria-label="Kembali"
+            aria-label="Tutup"
           >
-            <ArrowLeft size={18} />
+            <X size={18} />
           </button>
           <h2 className="sub-header-title">Ketentuan Layanan</h2>
         </div>
@@ -395,9 +404,9 @@ export default function ProfileAboutPage({
             type="button"
             className="sub-back-btn"
             onClick={() => setActiveSubView(null)}
-            aria-label="Kembali"
+            aria-label="Tutup"
           >
-            <ArrowLeft size={18} />
+            <X size={18} />
           </button>
           <h2 className="sub-header-title">Bantuan &amp; FAQ</h2>
         </div>
@@ -447,9 +456,9 @@ export default function ProfileAboutPage({
             type="button"
             className="sub-back-btn"
             onClick={() => setActiveSubView(null)}
-            aria-label="Kembali"
+            aria-label="Tutup"
           >
-            <ArrowLeft size={18} />
+            <X size={18} />
           </button>
           <h2 className="sub-header-title">Pengaturan</h2>
         </div>
@@ -528,6 +537,20 @@ export default function ProfileAboutPage({
                   {nameError}
                 </span>
               )}
+            </div>
+
+            <div className="form-group">
+              <label className="form-label" htmlFor="profile-nim">NIM</label>
+              <input
+                id="profile-nim"
+                type="text"
+                inputMode="numeric"
+                value={editNim}
+                maxLength={20}
+                onChange={(e) => setEditNim(e.target.value.replace(/\D/g, ''))}
+                className="dark-input"
+                placeholder="Contoh: 24060123456789"
+              />
             </div>
 
             <div className="form-group">
@@ -632,11 +655,17 @@ export default function ProfileAboutPage({
     )
   }
 
+    return null
+  }
+
   // --------------------------------------------------------------------------
   // MAIN PROFILE SCREEN (Image 3 & Image 4 Screen 7)
   // --------------------------------------------------------------------------
   return (
     <div className="profile-page-container">
+      <Popup open={Boolean(activeSubView)} onClose={() => setActiveSubView(null)} className="lk-sheet">
+        {renderSubView()}
+      </Popup>
       <h1 className="profile-main-title">Profile</h1>
 
       {feedback && (
@@ -675,6 +704,9 @@ export default function ProfileAboutPage({
           <span className="profile-user-email">
             {userProfile?.isLoggedIn ? userProfile.email : 'user@mail.com (Tamu)'}
           </span>
+          {userProfile?.nim && (
+            <span className="profile-user-email">NIM: {userProfile.nim}</span>
+          )}
           <span className="profile-city-badge">{userProfile?.favoriteCity || 'Semarang'} Foodie</span>
         </div>
       </div>
@@ -702,31 +734,9 @@ export default function ProfileAboutPage({
           </div>
           <div className="settings-item-text">
             <span className="settings-title">Pengaturan</span>
-            <span className="settings-desc">Username, bio, foto, radius &amp; cache</span>
+            <span className="settings-desc">Username, NIM, bio, foto, radius &amp; cache</span>
           </div>
           <ChevronRight size={18} className="settings-arrow" />
-        </div>
-
-        {/* 3. Notifikasi Rekomendasi (Toggle Switch) */}
-        <div className="settings-item-card">
-          <div className="settings-icon-box" style={{ background: 'rgba(234, 179, 8, 0.15)', color: '#eab308' }}>
-            <Bell size={18} />
-          </div>
-          <div className="settings-item-text">
-            <span className="settings-title">Notifikasi Rekomendasi</span>
-            <span className="settings-desc">Promo &amp; kuliner viral mingguan</span>
-          </div>
-          <label className="toggle-switch">
-            <input
-              type="checkbox"
-              checked={notificationsEnabled}
-              onChange={(e) => {
-                setNotificationsEnabled(e.target.checked)
-                showToast(e.target.checked ? 'Notifikasi diaktifkan' : 'Notifikasi dinonaktifkan')
-              }}
-            />
-            <span className="toggle-slider" />
-          </label>
         </div>
 
         {/* 4. Bantuan & FAQ */}
@@ -814,7 +824,7 @@ export default function ProfileAboutPage({
       <ConfirmModal
         open={confirmLogout}
         title="Keluar dari Akun"
-        message="Semua data di perangkat ini akan dihapus: profil, favorit, dan draft formulir. Lanjutkan keluar?"
+        message="Favorit, draft, dan profil tetap tersimpan di akun ini dan akan muncul lagi saat Anda masuk. Lanjutkan keluar?"
         confirmLabel="Ya, Keluar"
         danger
         onConfirm={handleLogout}
