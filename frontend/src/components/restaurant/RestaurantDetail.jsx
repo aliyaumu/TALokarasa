@@ -15,6 +15,7 @@ import {
   Navigation,
   Pencil,
   Trash2,
+  X,
 } from 'lucide-react'
 import { useReviews, useCreateReview, useDeleteReview } from '../../hooks/useReviews'
 import reviewService from '../../services/reviewService'
@@ -46,8 +47,54 @@ export default function RestaurantDetail({
   const [reviewerName, setReviewerName] = useState(userProfile?.name || 'Saraswati Putri')
   const [reviewMsg, setReviewMsg] = useState({ text: '', type: '' })
   const [showMapModal, setShowMapModal] = useState(false)
+  const [selectedMenu, setSelectedMenu] = useState(null)
 
   const avgRating = restaurant.rating || calculateAverageRating(reviews)
+
+  // Mendukung data menu berbentuk string maupun object dari database.
+  const getMenuName = (menu) => {
+    if (typeof menu === 'object' && menu !== null) return menu.name || menu.nama || 'Menu Andalan'
+    return String(menu).replace(/\s*\(Rp\s*[\d.]+\)\s*$/i, '').trim()
+  }
+
+  const getMenuDescription = (menu) => {
+    if (typeof menu === 'object' && menu !== null && (menu.description || menu.deskripsi)) {
+      return menu.description || menu.deskripsi
+    }
+
+    const name = getMenuName(menu).toLowerCase()
+    if (name.includes('creamy ori ayam panggang')) {
+      return 'Ayam panggang dengan saus creamy rasa original yang gurih dan lembut. Cocok untuk kamu yang menyukai perpaduan rasa ayam panggang dan saus creamy.'
+    }
+    if (name.includes('creamy mala daging sapi')) {
+      return 'Olahan daging sapi dengan perpaduan saus creamy dan cita rasa mala yang khas. Pilihan menarik untuk pencinta makanan gurih dengan sensasi pedas.'
+    }
+    if (name.includes('mie chili oil singapore')) {
+      return 'Hidangan mie dengan sentuhan chili oil khas Singapore yang menghadirkan perpaduan rasa gurih dan pedas.'
+    }
+    if (name.includes('dimsum kuah creamy')) {
+      return 'Dimsum yang disajikan bersama kuah creamy dengan tekstur lembut dan cita rasa gurih.'
+    }
+    return `Salah satu menu andalan ${restaurant.name}. Kamu bisa mencoba menu ini sebagai pilihan kuliner saat berkunjung.`
+  }
+
+  const getMenuPrice = (menu) => {
+    if (typeof menu === 'object' && menu !== null) {
+      const price = menu.price ?? menu.harga
+      if (price !== undefined && price !== null && price !== '') {
+        return typeof price === 'number' ? `Rp${price.toLocaleString('id-ID')}` : String(price)
+      }
+    }
+    const match = String(menu).match(/\(Rp\s*[\d.]+\)/i)
+    return match ? match[0].replace(/[()]/g, '') : 'Hubungi restoran'
+  }
+
+  const getMenuImage = (menu) => {
+    if (typeof menu === 'object' && menu !== null) {
+      return menu.image_url || menu.image || menu.foto || imgSrc
+    }
+    return imgSrc
+  }
 
   const handleSubmitReview = async (e) => {
     e.preventDefault()
@@ -264,12 +311,21 @@ export default function RestaurantDetail({
         {restaurant.signature_menu && restaurant.signature_menu.length > 0 && (
           <section className="detail-block-section">
             <h3 className="detail-section-label">Menu Andalan</h3>
+            <p className="menu-section-hint">
+              Klik salah satu menu untuk melihat informasi selengkapnya.
+            </p>
             <div className="signature-menu-wrap">
               {restaurant.signature_menu.map((menu, i) => (
-                <div key={i} className="signature-menu-chip">
+                <button
+                  key={i}
+                  type="button"
+                  className="signature-menu-chip"
+                  onClick={() => setSelectedMenu(menu)}
+                  aria-label={`Lihat detail ${getMenuName(menu)}`}
+                >
                   <span className="menu-bullet">✨</span>
                   <span>{menu}</span>
-                </div>
+                </button>
               ))}
             </div>
           </section>
@@ -439,6 +495,59 @@ export default function RestaurantDetail({
           </div>
         </section>
       </div>
+
+      {/* Popup Detail Menu */}
+      {selectedMenu && (
+        <div
+          className="menu-detail-overlay"
+          onClick={() => setSelectedMenu(null)}
+        >
+          <div
+            className="menu-detail-modal"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="menu-detail-title"
+          >
+            <button
+              type="button"
+              className="menu-detail-close"
+              onClick={() => setSelectedMenu(null)}
+              aria-label="Tutup popup"
+            >
+              <X size={20} />
+            </button>
+
+            <div className="menu-detail-image-wrap">
+              <img
+                className="menu-detail-image"
+                src={getMenuImage(selectedMenu)}
+                alt={getMenuName(selectedMenu)}
+                onError={(e) => { e.currentTarget.src = imgSrc }}
+              />
+              <span className="menu-detail-image-badge">MENU ANDALAN</span>
+            </div>
+            <div className="menu-detail-content">
+              <h2 id="menu-detail-title">{getMenuName(selectedMenu)}</h2>
+              <p className="menu-detail-description">
+                {getMenuDescription(selectedMenu)}
+              </p>
+              <div className="menu-detail-price">
+                <span>Harga Menu</span>
+                <strong>{getMenuPrice(selectedMenu)}</strong>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              className="menu-detail-button"
+              onClick={() => setSelectedMenu(null)}
+            >
+              Mengerti
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Konfirmasi hapus ulasan */}
       <ConfirmModal
