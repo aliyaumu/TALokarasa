@@ -1,7 +1,6 @@
 
-import { useState, useMemo } from 'react'
+import { useMemo } from 'react'
 import {
-  Search,
   Flame,
   Sparkles,
   ArrowRight,
@@ -82,8 +81,6 @@ export default function HomePage({
   onNavigateExplore,
   onOpenAuth,
 }) {
-  const [searchQuery, setSearchQuery] = useState('')
-
   const safeRestaurants = Array.isArray(restaurants)
     ? restaurants
     : []
@@ -156,14 +153,6 @@ export default function HomePage({
     },
   ]
 
-  const handleSearchSubmit = (e) => {
-    e.preventDefault()
-
-    if (onNavigateExplore) {
-      onNavigateExplore(searchQuery)
-    }
-  }
-
   const displayName = userProfile?.isLoggedIn
     ? userProfile?.name?.split(' ')[0] || 'Saras'
     : 'Foodie'
@@ -193,27 +182,6 @@ export default function HomePage({
           </button>
         )}
       </section>
-
-      {/* Search Bar - Tanpa Filter Kategori */}
-      <form
-        onSubmit={handleSearchSubmit}
-        className="home-search-form"
-      >
-        <div className="home-search-bar">
-          <Search
-            size={18}
-            className="home-search-icon"
-          />
-
-          <input
-            type="search"
-            placeholder="Cari makanan, resto, atau area..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="home-search-input"
-          />
-        </div>
-      </form>
 
       {/* Featured Banner */}
       <section className="home-featured-banner">
