@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react'
 import { Heart, Search, Trash2, MapPin, Star, Compass, ArrowRight } from 'lucide-react'
+import OperationalBadge from '../components/common/OperationalBadge'
 import { formatRupiah } from '../utils/helpers'
 
 /**
@@ -91,6 +92,8 @@ export default function FavoritesPage({
                 <div className="fav-price-line">
                   <span>{formatRupiah(resto.avg_price || 25000)}</span>
                 </div>
+
+                <OperationalBadge openingHours={resto.opening_hours} variant="compact" />
               </div>
 
               {/* Trash/Unlike Action (Image 2) */}

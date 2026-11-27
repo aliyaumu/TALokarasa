@@ -1,5 +1,6 @@
 import { Star, MapPin } from 'lucide-react'
 import FavoriteButton from '../common/FavoriteButton'
+import OperationalBadge from '../common/OperationalBadge'
 import { formatRupiah, truncate } from '../../utils/helpers'
 
 export default function RestaurantCard({
@@ -67,6 +68,8 @@ export default function RestaurantCard({
             <span>{restaurant.city || 'Yogyakarta'}</span>
           </div>
         </div>
+
+        <OperationalBadge openingHours={restaurant.opening_hours} variant="compact" />
       </div>
     </div>
   )

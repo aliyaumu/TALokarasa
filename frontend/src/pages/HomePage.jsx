@@ -7,68 +7,10 @@ import {
   Star,
   MapPin,
   BadgePlus,
-  Pencil,
-  Trash2,
 } from 'lucide-react'
 import FavoriteButton from '../components/common/FavoriteButton'
+import OperationalBadge from '../components/common/OperationalBadge'
 import { formatRupiah, truncate } from '../utils/helpers'
-
-// Tombol Edit & Hapus di bawah kartu
-function CardActions({ resto, onEdit, onDelete }) {
-  if (!onEdit && !onDelete) return null
-
-  const base = {
-    flex: 1,
-    display: 'inline-flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    padding: '7px 10px',
-    borderRadius: 10,
-    fontSize: 12,
-    fontWeight: 600,
-    cursor: 'pointer',
-    border: '1px solid rgba(255,255,255,0.18)',
-    background: 'rgba(255,255,255,0.06)',
-    color: 'inherit',
-  }
-
-  const danger = {
-    ...base,
-    border: '1px solid rgba(239,68,68,0.45)',
-    background: 'rgba(239,68,68,0.12)',
-    color: '#ef4444',
-  }
-
-  return (
-    <div
-      style={{ display: 'flex', gap: 8, marginTop: 12 }}
-      onClick={(e) => e.stopPropagation()}
-    >
-      {onEdit && (
-        <button
-          type="button"
-          style={base}
-          onClick={() => onEdit(resto)}
-          aria-label={`Edit ${resto.name}`}
-        >
-          <Pencil size={13} /> Edit
-        </button>
-      )}
-
-      {onDelete && (
-        <button
-          type="button"
-          style={danger}
-          onClick={() => onDelete(resto)}
-          aria-label={`Hapus ${resto.name}`}
-        >
-          <Trash2 size={13} /> Hapus
-        </button>
-      )}
-    </div>
-  )
-}
 
 export default function HomePage({
   userProfile,
@@ -76,8 +18,6 @@ export default function HomePage({
   favorites = [],
   onSelectRestaurant,
   onToggleFavorite,
-  onEditRestaurant,
-  onDeleteRestaurant,
   onNavigateExplore,
   onOpenAuth,
 }) {
@@ -353,11 +293,7 @@ export default function HomePage({
                       </span>
                     </div>
 
-                    <CardActions
-                      resto={resto}
-                      onEdit={onEditRestaurant}
-                      onDelete={onDeleteRestaurant}
-                    />
+                    <OperationalBadge openingHours={resto.opening_hours} variant="compact" />
                   </div>
                 </div>
               )
@@ -453,11 +389,7 @@ export default function HomePage({
                     </span>
                   </div>
 
-                  <CardActions
-                    resto={resto}
-                    onEdit={onEditRestaurant}
-                    onDelete={onDeleteRestaurant}
-                  />
+                  <OperationalBadge openingHours={resto.opening_hours} variant="compact" />
                 </div>
               </div>
             )
@@ -555,11 +487,7 @@ export default function HomePage({
                     </span>
                   </div>
 
-                  <CardActions
-                    resto={resto}
-                    onEdit={onEditRestaurant}
-                    onDelete={onDeleteRestaurant}
-                  />
+                  <OperationalBadge openingHours={resto.opening_hours} variant="compact" />
                 </div>
               </div>
             )

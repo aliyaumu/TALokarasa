@@ -1,8 +1,10 @@
 import { useState, useMemo } from 'react'
 import { Search, SlidersHorizontal, Star, MapPin, X, UtensilsCrossed, Loader, AlertTriangle, Pencil, Trash2 } from 'lucide-react'
 import FavoriteButton from '../components/common/FavoriteButton'
+import OperationalBadge from '../components/common/OperationalBadge'
+import { useCurrentTime } from '../hooks/useCurrentTime'
 import './FilterDropdown.css'
-import { matchesSearch, matchesCategory, sortRestaurants, formatRupiah } from '../utils/helpers'
+import { matchesSearch, matchesCategory, sortRestaurants, getOperationalStatus } from '../utils/helpers'
 
 // Gaya tombol ikon Edit / Hapus pada baris kartu
 const iconBtn = {
@@ -45,6 +47,8 @@ export default function ExplorePage({
   const [showFilters, setShowFilters] = useState(initialCategory !== 'Semua')
   const [priceFilter, setPriceFilter] = useState('all')
   const [ratingFilter, setRatingFilter] = useState('0')
+  const [statusFilter, setStatusFilter] = useState('all')
+  const now = useCurrentTime()
 
   const priceOk = (item) => {
     if (priceFilter === 'all') return true
@@ -54,11 +58,15 @@ export default function ExplorePage({
     return p > 50000
   }
   const activeFilterCount =
-    (activeCategory !== 'Semua' ? 1 : 0) + (priceFilter !== 'all' ? 1 : 0) + (ratingFilter !== '0' ? 1 : 0)
+    (activeCategory !== 'Semua' ? 1 : 0) +
+    (priceFilter !== 'all' ? 1 : 0) +
+    (ratingFilter !== '0' ? 1 : 0) +
+    (statusFilter !== 'all' ? 1 : 0)
   const resetFilters = () => {
     setActiveCategory('Semua')
     setPriceFilter('all')
     setRatingFilter('0')
+    setStatusFilter('all')
   }
 
   const categories = [
@@ -78,15 +86,19 @@ export default function ExplorePage({
   }, [favorites])
 
   const filteredRestaurants = useMemo(() => {
-    const list = restaurants.filter(
-      (item) =>
-        matchesSearch(item, search) &&
-        matchesCategory(item, activeCategory) &&
-        priceOk(item) &&
-        Number(item?.rating || 0) >= Number(ratingFilter)
-    )
+    const list = restaurants.filter((item) => {
+      if (!matchesSearch(item, search)) return false
+      if (!matchesCategory(item, activeCategory)) return false
+      if (!priceOk(item)) return false
+      if (Number(item?.rating || 0) < Number(ratingFilter)) return false
+      if (statusFilter !== 'all') {
+        const op = getOperationalStatus(item?.opening_hours, now)
+        if (op.status !== statusFilter) return false
+      }
+      return true
+    })
     return sortRestaurants(list, sortKey, sortOrder)
-  }, [restaurants, search, activeCategory, priceFilter, ratingFilter, sortKey, sortOrder])
+  }, [restaurants, search, activeCategory, priceFilter, ratingFilter, statusFilter, now, sortKey, sortOrder])
 
   return (
     <div className="explore-page-wrap">
@@ -148,6 +160,15 @@ export default function ExplorePage({
                 <option value="3">3.0 ke atas</option>
                 <option value="4">4.0 ke atas</option>
                 <option value="4.5">4.5 ke atas</option>
+              </select>
+            </div>
+            <div className="lk-filter-field">
+              <label htmlFor="flt-status">Status Operasional</label>
+              <select id="flt-status" className="lk-select" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+                <option value="all">Semua status</option>
+                <option value="open">🟢 Open Now (Buka)</option>
+                <option value="coming_soon">🟡 Coming Soon</option>
+                <option value="closed">🔴 Closed (Tutup)</option>
               </select>
             </div>
             {activeFilterCount > 0 && (
@@ -276,6 +297,8 @@ export default function ExplorePage({
                   <span className="rating-val">{Number(resto.rating || 4.8).toFixed(1)}</span>
                   <span className="review-num">({resto.review_count || 120}+)</span>
                 </div>
+
+                <OperationalBadge openingHours={resto.opening_hours} variant="compact" />
 
                 <div className="explore-card-bottom">
                   <span className="explore-card-category">{resto.category_name}</span>

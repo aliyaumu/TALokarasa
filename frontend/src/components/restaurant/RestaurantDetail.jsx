@@ -20,6 +20,7 @@ import {
 import { useReviews, useCreateReview, useDeleteReview } from '../../hooks/useReviews'
 import reviewService from '../../services/reviewService'
 import ConfirmModal from '../modals/ConfirmModal'
+import OperationalBadge from '../common/OperationalBadge'
 import { formatRupiah, calculateAverageRating } from '../../utils/helpers'
 
 export default function RestaurantDetail({
@@ -259,9 +260,15 @@ export default function RestaurantDetail({
             <span className="detail-chip-item">{restaurant.category_name || 'Kuliner'}</span>
             <span className="detail-chip-item">{restaurant.price_range || '$$'}</span>
             <span className="detail-chip-item">
-              <Clock size={12} className="inline-icon" /> Buka: {restaurant.opening_hours || '10:00 - 21:00 WIB'}
+              <Clock size={12} className="inline-icon" /> {restaurant.opening_hours || '10:00 - 21:00 WIB'}
             </span>
           </div>
+
+          {/* Indikator Status Operasional Real-Time */}
+          <OperationalBadge
+            openingHours={restaurant.opening_hours}
+            variant="detail"
+          />
         </div>
 
         {/* Description */}

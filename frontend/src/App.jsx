@@ -189,8 +189,6 @@ export default function App() {
                   toggleFavorite(r)
                   refetchFavorites()
                 }}
-                onEditRestaurant={handleEditRestaurant}
-                onDeleteRestaurant={(r) => setDeleteTarget(r)}
                 onNavigateExplore={handleNavigateExplore}
                 onOpenAuth={() => setIsAuthOpen(true)}
               />

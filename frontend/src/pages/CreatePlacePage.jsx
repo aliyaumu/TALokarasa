@@ -16,6 +16,7 @@ import {
   Image as ImageIcon,
 } from 'lucide-react'
 import restaurantService from '../services/restaurantService'
+import OperationalBadge from '../components/common/OperationalBadge'
 import {
   saveDraft,
   loadDraft,
@@ -456,6 +457,21 @@ export default function CreatePlacePage({ onBack, onSuccess }) {
                   placeholder="10:00 - 21:00 WIB"
                   className="crud-input-field with-icon"
                 />
+              </div>
+              <div className="crud-quick-price-row" style={{ marginTop: 8 }}>
+                {['08:00 - 21:00 WIB', '10:00 - 22:00 WIB', '17:00 - 24:00 WIB', 'Buka 24 Jam', 'Coming Soon'].map((hrs) => (
+                  <button
+                    key={hrs}
+                    type="button"
+                    className={`price-chip ${formData.opening_hours === hrs ? 'active' : ''}`}
+                    onClick={() => setFormData((p) => ({ ...p, opening_hours: hrs }))}
+                  >
+                    {hrs}
+                  </button>
+                ))}
+              </div>
+              <div style={{ marginTop: 8 }}>
+                <OperationalBadge openingHours={formData.opening_hours} variant="pill" showDetail />
               </div>
             </div>
 
