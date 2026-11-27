@@ -93,7 +93,7 @@ export default function FavoritesPage({
                   <span>{formatRupiah(resto.avg_price || 25000)}</span>
                 </div>
 
-                <OperationalBadge openingHours={resto.opening_hours} variant="compact" />
+                <OperationalBadge openingHours={resto.opening_hours} openingDate={resto.opening_date} variant="compact" />
               </div>
 
               {/* Trash/Unlike Action (Image 2) */}

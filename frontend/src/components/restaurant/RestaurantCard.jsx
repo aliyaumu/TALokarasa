@@ -69,7 +69,7 @@ export default function RestaurantCard({
           </div>
         </div>
 
-        <OperationalBadge openingHours={restaurant.opening_hours} variant="compact" />
+        <OperationalBadge openingHours={restaurant.opening_hours} openingDate={restaurant.opening_date} variant="compact" />
       </div>
     </div>
   )

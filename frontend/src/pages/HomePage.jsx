@@ -293,7 +293,7 @@ export default function HomePage({
                       </span>
                     </div>
 
-                    <OperationalBadge openingHours={resto.opening_hours} variant="compact" />
+                    <OperationalBadge openingHours={resto.opening_hours} openingDate={resto.opening_date} variant="compact" />
                   </div>
                 </div>
               )
@@ -389,7 +389,7 @@ export default function HomePage({
                     </span>
                   </div>
 
-                  <OperationalBadge openingHours={resto.opening_hours} variant="compact" />
+                  <OperationalBadge openingHours={resto.opening_hours} openingDate={resto.opening_date} variant="compact" />
                 </div>
               </div>
             )
@@ -487,7 +487,7 @@ export default function HomePage({
                     </span>
                   </div>
 
-                  <OperationalBadge openingHours={resto.opening_hours} variant="compact" />
+                  <OperationalBadge openingHours={resto.opening_hours} openingDate={resto.opening_date} variant="compact" />
                 </div>
               </div>
             )

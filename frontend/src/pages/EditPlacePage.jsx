@@ -16,6 +16,11 @@ import {
 } from 'lucide-react'
 import restaurantService from '../services/restaurantService'
 import OperationalBadge from '../components/common/OperationalBadge'
+import {
+  parseDateFromText,
+  toIsoDateString,
+  applyOpeningDateToHours,
+} from '../utils/helpers'
 
 const PRESET_IMAGES = [
   { label: '🍜 Bakso & Mie', url: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=800&q=80' },
@@ -70,6 +75,16 @@ export default function EditPlacePage({ restaurant, onBack, onSuccess }) {
       }
     }
   }, [restaurant])
+
+  const launchDate = toIsoDateString(parseDateFromText(formData.opening_hours))
+
+  const handleLaunchDateChange = (e) => {
+    const iso = e.target.value
+    setFormData((prev) => ({
+      ...prev,
+      opening_hours: applyOpeningDateToHours(prev.opening_hours, iso),
+    }))
+  }
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target
@@ -379,16 +394,50 @@ export default function EditPlacePage({ restaurant, onBack, onSuccess }) {
                 />
               </div>
               <div className="crud-quick-price-row" style={{ marginTop: 8 }}>
-                {['08:00 - 21:00 WIB', '10:00 - 22:00 WIB', '17:00 - 24:00 WIB', 'Buka 24 Jam', 'Coming Soon'].map((hrs) => (
+                {['08:00 - 21:00 WIB', '10:00 - 22:00 WIB', '17:00 - 24:00 WIB', 'Buka 24 Jam'].map((hrs) => (
                   <button
                     key={hrs}
                     type="button"
-                    className={`price-chip ${formData.opening_hours === hrs ? 'active' : ''}`}
-                    onClick={() => setFormData((p) => ({ ...p, opening_hours: hrs }))}
+                    className={`price-chip ${formData.opening_hours.includes(hrs) ? 'active' : ''}`}
+                    onClick={() =>
+                      setFormData((p) => ({
+                        ...p,
+                        opening_hours: applyOpeningDateToHours(hrs, launchDate),
+                      }))
+                    }
                   >
                     {hrs}
                   </button>
                 ))}
+              </div>
+              <div style={{ marginTop: 10 }}>
+                <label className="crud-field-label" htmlFor="edit-launch-date" style={{ fontSize: 12 }}>
+                  Tanggal Buka (Opsional — untuk toko baru / Coming Soon)
+                </label>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 4 }}>
+                  <input
+                    id="edit-launch-date"
+                    type="date"
+                    value={launchDate}
+                    onChange={handleLaunchDateChange}
+                    className="crud-input-field"
+                    style={{ flex: 1 }}
+                  />
+                  {launchDate && (
+                    <button
+                      type="button"
+                      className="price-chip"
+                      onClick={() =>
+                        setFormData((p) => ({
+                          ...p,
+                          opening_hours: applyOpeningDateToHours(p.opening_hours, ''),
+                        }))
+                      }
+                    >
+                      Reset Tanggal
+                    </button>
+                  )}
+                </div>
               </div>
               <div style={{ marginTop: 8 }}>
                 <OperationalBadge openingHours={formData.opening_hours} variant="pill" showDetail />

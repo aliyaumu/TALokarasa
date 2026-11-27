@@ -267,6 +267,7 @@ export default function RestaurantDetail({
           {/* Indikator Status Operasional Real-Time */}
           <OperationalBadge
             openingHours={restaurant.opening_hours}
+            openingDate={restaurant.opening_date}
             variant="detail"
           />
         </div>

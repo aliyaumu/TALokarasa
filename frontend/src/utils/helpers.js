@@ -90,17 +90,119 @@ export const calculateAverageRating = (reviews) => {
 
 const padTime = (n) => String(n).padStart(2, '0')
 
+const MONTH_NAME_MAP = {
+  jan: 0, januari: 0, january: 0,
+  feb: 1, februari: 1, february: 1,
+  mar: 2, maret: 2, march: 2,
+  apr: 3, april: 3,
+  mei: 4, may: 4,
+  jun: 5, juni: 5, june: 5,
+  jul: 6, juli: 6, july: 6,
+  agu: 7, ags: 7, agustus: 7, aug: 7, august: 7,
+  sep: 8, sept: 8, september: 8,
+  okt: 9, oktober: 9, oct: 9, october: 9,
+  nov: 10, november: 10,
+  des: 11, desember: 11, dec: 11, december: 11,
+}
+
+const SHORT_MONTHS_ID = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des']
+
 /**
- * Menentukan status operasional tempat makan secara real-time berdasarkan jam buka
- * Mengembalikan:
- * - status: 'open' | 'closed' | 'coming_soon'
- * - label: 'Open Now' | 'Closed' | 'Coming Soon'
- * - detail: keterangan singkat waktu buka/tutup
- * - hoursText: teks jam operasional untuk ditampilkan
+ * Mengurai tanggal dari input YYYY-MM-DD atau teks seperti "05 Des 2026" / "05/12/2026"
  */
-export const getOperationalStatus = (openingHours, now = new Date()) => {
+export const parseDateFromText = (text) => {
+  const str = String(text || '').trim()
+  if (!str) return null
+
+  const isoMatch = str.match(/(\d{4})-(\d{1,2})-(\d{1,2})/)
+  if (isoMatch) {
+    const y = parseInt(isoMatch[1], 10)
+    const m = parseInt(isoMatch[2], 10) - 1
+    const d = parseInt(isoMatch[3], 10)
+    const dt = new Date(y, m, d)
+    if (dt.getFullYear() === y && dt.getMonth() === m && dt.getDate() === d) return dt
+  }
+
+  const dmyMatch = str.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/)
+  if (dmyMatch) {
+    const d = parseInt(dmyMatch[1], 10)
+    const m = parseInt(dmyMatch[2], 10) - 1
+    const y = parseInt(dmyMatch[3], 10)
+    const dt = new Date(y, m, d)
+    if (dt.getFullYear() === y && dt.getMonth() === m && dt.getDate() === d) return dt
+  }
+
+  const wordMatch = str.match(
+    /(\d{1,2})\s+(Jan(?:uari|uary)?|Feb(?:ruari|ruary)?|Mar(?:et|ch)?|Apr(?:il)?|Mei|May|Jun(?:i|e)?|Jul(?:i|y)?|Agu(?:stus)?|Ags|Aug(?:ust)?|Sep(?:t|tember)?|Okt(?:ober)?|Oct(?:ober)?|Nov(?:ember)?|Des(?:ember)?|Dec(?:ember)?)\s+(\d{4})/i
+  )
+  if (wordMatch) {
+    const d = parseInt(wordMatch[1], 10)
+    const m = MONTH_NAME_MAP[wordMatch[2].toLowerCase()]
+    const y = parseInt(wordMatch[3], 10)
+    if (m !== undefined) {
+      const dt = new Date(y, m, d)
+      if (dt.getFullYear() === y && dt.getMonth() === m && dt.getDate() === d) return dt
+    }
+  }
+
+  return null
+}
+
+export const toIsoDateString = (dt) => {
+  if (!(dt instanceof Date) || Number.isNaN(dt.getTime())) return ''
+  return `${dt.getFullYear()}-${padTime(dt.getMonth() + 1)}-${padTime(dt.getDate())}`
+}
+
+export const formatIndonesianDate = (dateOrStr) => {
+  const dt = dateOrStr instanceof Date ? dateOrStr : parseDateFromText(dateOrStr)
+  if (!dt) return ''
+  return `${padTime(dt.getDate())} ${SHORT_MONTHS_ID[dt.getMonth()]} ${dt.getFullYear()}`
+}
+
+export const stripOpeningDatePrefix = (hoursStr) => {
+  return String(hoursStr || '')
+    .replace(/^(?:Coming Soon(?:\s*\([^)]*\))?|Buka\s+\d{1,2}\s+[A-Za-z]+\s+\d{4}|Buka\s+\d{4}-\d{2}-\d{2}|Buka\s+\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4})\s*[•\-–]?\s*/i, '')
+    .trim()
+}
+
+export const applyOpeningDateToHours = (hoursStr, isoDate) => {
+  const cleanHours = stripOpeningDatePrefix(hoursStr)
+  if (!isoDate) return cleanHours || '10:00 - 21:00 WIB'
+  const dateText = formatIndonesianDate(isoDate)
+  if (!dateText) return cleanHours || '10:00 - 21:00 WIB'
+  return cleanHours ? `Buka ${dateText} • ${cleanHours}` : `Buka ${dateText}`
+}
+
+/**
+ * Menentukan status operasional tempat makan secara real-time berdasarkan jam buka & tanggal buka
+ * - Open Now (hijau): sedang buka saat ini berdasarkan jam operasional harian
+ * - Closed (merah): sedang tutup (di luar jam buka harian, sebelum jam buka hari ini, atau setelah jam tutup)
+ * - Coming Soon (kuning): toko baru yang akan buka di tanggal mendatang (> hari ini) atau bertanda Coming Soon
+ */
+export const getOperationalStatus = (openingHours, now = new Date(), openingDate = null) => {
   const raw = String(openingHours || '').trim()
   const lower = raw.toLowerCase()
+
+  const parsedTargetDate = parseDateFromText(openingDate) || parseDateFromText(raw)
+  const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+
+  // 1. Jika ada tanggal buka di masa depan (> hari ini) -> Coming Soon
+  if (parsedTargetDate) {
+    const targetMidnight = new Date(
+      parsedTargetDate.getFullYear(),
+      parsedTargetDate.getMonth(),
+      parsedTargetDate.getDate()
+    )
+    if (targetMidnight > todayMidnight) {
+      const dateText = formatIndonesianDate(parsedTargetDate)
+      return {
+        status: 'coming_soon',
+        label: 'Coming Soon',
+        detail: `Buka ${dateText}`,
+        hoursText: raw || `Buka ${dateText}`,
+      }
+    }
+  }
 
   if (!raw) {
     return {
@@ -111,10 +213,10 @@ export const getOperationalStatus = (openingHours, now = new Date()) => {
     }
   }
 
+  // 2. Jika eksplisit bertuliskan Coming Soon / Segera Buka tanpa tanggal masa lalu/hari ini
   if (
-    lower.includes('coming soon') ||
-    lower.includes('segera') ||
-    lower.includes('akan buka')
+    !parsedTargetDate &&
+    (lower.includes('coming soon') || lower.includes('segera') || lower.includes('akan buka'))
   ) {
     return {
       status: 'coming_soon',
@@ -124,6 +226,7 @@ export const getOperationalStatus = (openingHours, now = new Date()) => {
     }
   }
 
+  // 3. Buka 24 Jam
   if (lower.includes('24 jam') || lower === '24h') {
     return {
       status: 'open',
@@ -133,6 +236,7 @@ export const getOperationalStatus = (openingHours, now = new Date()) => {
     }
   }
 
+  // 4. Evaluasi rentang jam operasional harian (Open Now vs Closed)
   const rangeMatch = raw.match(
     /(\d{1,2})[:.](\d{2})\s*(?:-|–|—|s\/d|sd|to)\s*(\d{1,2})[:.](\d{2})/i
   )
@@ -173,15 +277,6 @@ export const getOperationalStatus = (openingHours, now = new Date()) => {
           }
         }
         if (nowMin < openMin) {
-          const diff = openMin - nowMin
-          if (diff <= 120) {
-            return {
-              status: 'coming_soon',
-              label: 'Coming Soon',
-              detail: `Buka ${openStr}`,
-              hoursText: raw,
-            }
-          }
           return {
             status: 'closed',
             label: 'Closed',
@@ -203,14 +298,6 @@ export const getOperationalStatus = (openingHours, now = new Date()) => {
           status: 'open',
           label: 'Open Now',
           detail: `Tutup ${closeStr}`,
-          hoursText: raw,
-        }
-      }
-      if (openMin - nowMin <= 120) {
-        return {
-          status: 'coming_soon',
-          label: 'Coming Soon',
-          detail: `Buka ${openStr}`,
           hoursText: raw,
         }
       }
@@ -242,8 +329,8 @@ export const getOperationalStatus = (openingHours, now = new Date()) => {
     const timeStr = `${padTime(h)}:${padTime(m)}`
     if (nowMin < openMin) {
       return {
-        status: 'coming_soon',
-        label: 'Coming Soon',
+        status: 'closed',
+        label: 'Closed',
         detail: `Buka ${timeStr}`,
         hoursText: raw,
       }

@@ -92,7 +92,7 @@ export default function ExplorePage({
       if (!priceOk(item)) return false
       if (Number(item?.rating || 0) < Number(ratingFilter)) return false
       if (statusFilter !== 'all') {
-        const op = getOperationalStatus(item?.opening_hours, now)
+        const op = getOperationalStatus(item?.opening_hours, now, item?.opening_date)
         if (op.status !== statusFilter) return false
       }
       return true
@@ -298,7 +298,7 @@ export default function ExplorePage({
                   <span className="review-num">({resto.review_count || 120}+)</span>
                 </div>
 
-                <OperationalBadge openingHours={resto.opening_hours} variant="compact" />
+                <OperationalBadge openingHours={resto.opening_hours} openingDate={resto.opening_date} variant="compact" />
 
                 <div className="explore-card-bottom">
                   <span className="explore-card-category">{resto.category_name}</span>

@@ -10,12 +10,13 @@ import { useCurrentTime } from '../../hooks/useCurrentTime'
  */
 export default function OperationalBadge({
   openingHours,
+  openingDate = null,
   variant = 'pill', // 'pill' | 'compact' | 'detail'
   showHours = true,
   showDetail = false,
 }) {
   const now = useCurrentTime()
-  const info = getOperationalStatus(openingHours, now)
+  const info = getOperationalStatus(openingHours, now, openingDate)
 
   if (variant === 'compact') {
     return (
